@@ -262,7 +262,7 @@ st.dataframe(decarbonized_fines_df)
 
     
 
-    else:
+else:
         st.error(f"API Call Failed: {response.status_code}")
         st.write(response.text)
 
