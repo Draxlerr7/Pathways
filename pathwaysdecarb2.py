@@ -6,7 +6,7 @@ import pandas as pd
 from geopy.geocoders import Nominatim
 
 # Streamlit App Title
-st.title("Palmetto Pathways Interactive Emission Calculator")
+st.title("Palmetto Pathways")
 st.title("Interactive Emission Calculator")
 # API Information
 API_URL = "https://ei.palmetto.com/api/v0/bem/calculate"
@@ -65,7 +65,7 @@ if latitude and longitude:
     num_occupants = st.sidebar.number_input("Number of Occupants per unit", value=3)
     num_stories = st.sidebar.number_input("Number of Stories", value=6)
     vintage = st.sidebar.selectbox("Vintage", ["<1940", "1940s", "1950s", "1960s", "1970s", "1980s", "1990s", "2000s", "2010s", "2020s"])
-    wall_type = st.sidebar.selectbox("Wall Type", ["Concrete", "Wood Frame", "Brick", "Other"])
+    wall_type = st.sidebar.selectbox("Wall Type", ["Concrete", "Brick", "Other"])
 
     # HVAC Attributes
     hvac_heating_fuel = st.sidebar.selectbox("HVAC Heating Fuel", ["Fossil Fuel", "Electric"])
@@ -211,9 +211,9 @@ if st.sidebar.button("Submit"):
 
     # Display Emissions and Consumption Info
         st.subheader("Results")
-        st.metric("Total Emissions (kgCO2)", f"{total_emissions:.2f}")
-        st.metric("Total Energy Consumption (kWh)", f"{total_consumption:.2f}")
-        st.metric("Per Sq Ft Emissions (kgCO2/ft²)", f"{per_sq_ft_emissions:.4f}")
+        st.metric("Total Annual Emissions (kgCO2)", f"{total_emissions:.2f}")
+        st.metric("Total Annual Energy Consumption (kWh)", f"{total_consumption:.2f}")
+        st.metric("Emissions Intensity (kgCO2/ft²)", f"{per_sq_ft_emissions:.4f}")
 
     # Calculate Emissions vs Benchmarks
         results = []
@@ -276,7 +276,7 @@ if st.sidebar.button("Submit"):
 
 # After your existing code, add the following:
 
-if st.sidebar.button("Calculate for Multiple Emission Rates"):
+if st.sidebar.button("Calculate for Grid Decarbonization Scenarios"):
     # Define a range of emission rates to test
     emission_rates = [0.2889, 0.245, 0.21,0.15, 0.10]  # kgCO2/kWh
     
