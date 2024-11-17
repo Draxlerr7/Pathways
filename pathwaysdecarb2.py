@@ -325,54 +325,56 @@ plt.legend()
 plt.grid(True)
 st.pyplot(plt)
 
-
+# Correctly calculate building emissions for reduced rates
+# Define fines_current and fines_reduced
 fines_current = []
 fines_reduced = []
 
-for year, reduced_emission in zip(years, reduced_emissions):
-    if year in emission_factors:
-        # Benchmark emission for the current year
-        benchmark_emission = emission_benchmarks.get(f"{year}–{year + 5}", benchmark_emissions[0])
+# Loop through years to calculate fines
+for year, reduced_emission in zip(years, building_emissions_reduced):
+    # Retrieve benchmark emissions
+    benchmark_emission = next(
+        (value for y, value in benchmark_timeline if y == year), None
+    )
 
-        # Calculate fines for current rates
-        excess_emissions_current = max(0, (per_sq_ft_emissions - benchmark_emission) * floor_area_ft2 * num_units)
-        fine_current = excess_emissions_current * 0.269  # Fine calculation for current rates
+    if benchmark_emission is not None:
+        # Calculate excess emissions for current and reduced rates
+        excess_emissions_current = max(0, (building_emissions_current[0] - benchmark_emission) * floor_area_ft2 * num_units)
+        fine_current = excess_emissions_current * 0.269
         fines_current.append(fine_current)
 
-        # Calculate fines for reduced rates
         excess_emissions_reduced = max(0, (reduced_emission - benchmark_emission) * floor_area_ft2 * num_units)
-        fine_reduced = excess_emissions_reduced * 0.269  # Fine calculation for reduced rates
+        fine_reduced = excess_emissions_reduced * 0.269
         fines_reduced.append(fine_reduced)
     else:
-        st.error(f"Emission factor for year {year} is missing!")
+        st.error(f"Benchmark emissions for year {year} not found!")
         fines_current.append(0)
         fines_reduced.append(0)
 
-# Second Plot: Fines for Current and Reduced Rates
+# Check alignment of fines with years
 if len(fines_current) != len(years) or len(fines_reduced) != len(years):
-    st.error("Mismatched lengths in fines data. Ensure fines_current and fines_reduced align with years.")
+    st.error("Mismatch in lengths of fines data and years.")
 else:
+    # Plot fines for Current and Reduced Emissions
     plt.figure(figsize=(10, 6))
-    width = 0.4  # Width of the bars
+    width = 0.4
     x_positions = range(len(years))
 
-    # Plot fines for current rates
     plt.bar(
         [x - width / 2 for x in x_positions],
         fines_current,
         width=width,
         color="red",
         alpha=0.7,
-        label="Fines (Current Rates)",
+        label="Fines (Current Rates)"
     )
-    # Plot fines for reduced rates
     plt.bar(
         [x + width / 2 for x in x_positions],
         fines_reduced,
         width=width,
         color="green",
         alpha=0.5,
-        label="Fines (Reduced Rates)",
+        label="Fines (Reduced Rates)"
     )
     plt.xticks(x_positions, [str(year) for year in years], rotation=45)
     plt.xlabel("Year")
@@ -381,4 +383,3 @@ else:
     plt.legend()
     plt.grid(axis="y", linestyle="--", alpha=0.7)
     st.pyplot(plt)
-
