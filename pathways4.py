@@ -184,19 +184,19 @@ decarbonization_factors = [
 ]
 
 # Define benchmark emissions for each year
-    benchmark_emissions = []
-    for year in years:
-        for period, benchmark in emission_benchmarks.items():
-            start_year, end_year = map(int, period.split("–"))
-            if start_year <= year <= end_year:
-                benchmark_emissions.append(benchmark)
-                break
+benchmark_emissions = []
+for year in years:
+    for period, benchmark in emission_benchmarks.items():
+        start_year, end_year = map(int, period.split("–"))
+        if start_year <= year <= end_year:
+             benchmark_emissions.append(benchmark)
+             break
     
     # Calculate building emissions under decarbonized grid
-    decarbonized_emissions_per_sq_ft = []
-    for factor in decarbonization_factors:
-        decarbonized_emissions = total_emissions * (factor / initial_emission_factor)
-        decarbonized_emissions_per_sq_ft.append(decarbonized_emissions / (floor_area_ft2 * num_units))
+decarbonized_emissions_per_sq_ft = []
+for factor in decarbonization_factors:
+    decarbonized_emissions = total_emissions * (factor / initial_emission_factor)
+    decarbonized_emissions_per_sq_ft.append(decarbonized_emissions / (floor_area_ft2 * num_units))
     
     # Plot updated Benchmark vs Building Emissions
     plt.figure(figsize=(10, 6))
@@ -211,13 +211,13 @@ decarbonization_factors = [
     st.pyplot(plt)
         
         # Calculate fines for the decarbonized grid scenario
-        decarbonized_fines = []
-    for year, factor, benchmark in zip(years, decarbonization_factors, benchmark_emissions):
-        decarbonized_emissions = total_emissions * (factor / initial_emission_factor)
-        decarbonized_per_sq_ft = decarbonized_emissions / (floor_area_ft2 * num_units)
-        total_excess_emissions = max(0, (decarbonized_per_sq_ft - benchmark) * floor_area_ft2 * num_units)
-        fine = total_excess_emissions * 269
-        decarbonized_fines.append({
+    decarbonized_fines = []
+for year, factor, benchmark in zip(years, decarbonization_factors, benchmark_emissions):
+    decarbonized_emissions = total_emissions * (factor / initial_emission_factor)
+    decarbonized_per_sq_ft = decarbonized_emissions / (floor_area_ft2 * num_units)
+    total_excess_emissions = max(0, (decarbonized_per_sq_ft - benchmark) * floor_area_ft2 * num_units)
+    fine = total_excess_emissions * 269
+    decarbonized_fines.append({
             "Year": year,
             "Decarbonized Grid Emissions (kgCO2/ft²)": decarbonized_per_sq_ft,
             "Excess Emissions (kgCO2)": total_excess_emissions,
@@ -260,7 +260,7 @@ decarbonization_factors = [
 
         # ADDITIONAL CODE HERE
         # Calculate fines for non-compliance for each period
-        fines = []
+    fines = []
     for period, benchmark in emission_benchmarks.items():
         total_excess_emissions = max(0, (per_sq_ft_emissions - benchmark) * floor_area_ft2 * num_units)
         fine = total_excess_emissions * 0.269  # Fine calculation
