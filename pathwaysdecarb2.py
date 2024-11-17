@@ -19,15 +19,7 @@ emission_benchmarks = {
     "2040–2049": 2.052731
 }
 
-# Variable emission rates for electricity
-emission_rate_reduction = {
-    2024: 0.2889, 2025: 0.282544, 2026: 0.276188, 2027: 0.269832, 2028: 0.263476,
-    2029: 0.25712, 2030: 0.250764, 2031: 0.244408, 2032: 0.238052, 2033: 0.231696,
-    2034: 0.22534, 2035: 0.218984, 2036: 0.212628, 2037: 0.206272, 2038: 0.199916,
-    2039: 0.19356, 2040: 0.187204, 2041: 0.180848, 2042: 0.174492, 2043: 0.168136,
-    2044: 0.16178, 2045: 0.155424, 2046: 0.149068, 2047: 0.142712, 2048: 0.136356,
-    2049: 0.13
-}
+
 # Convert benchmarks into a timeline
 benchmark_timeline = []
 for period, value in emission_benchmarks.items():
@@ -270,16 +262,29 @@ if st.sidebar.button("Submit"):
         st.subheader("BPS Compliance Fine Results")
         st.dataframe(fines_df)
 
-    # Plot fines for each year
-        plt.figure(figsize=(10, 6))
-        plt.bar(fines_df["Period"], fines_df["Fine ($)"], color="red", alpha=0.7)
-        plt.xlabel("Period")
-        plt.ylabel("Fines ($/yr)")
-        plt.title("Annual Fines Incurred Due to Non-Compliance")
-        plt.grid(axis="y", linestyle="--", alpha=0.7)
-        st.pyplot(plt)
+    # ... (existing code)
 
-        # Plot Benchmarks vs Building Emissions for Current and Reduced Emission Rates
+# Plot fines for each year
+plt.figure(figsize=(10, 6))
+plt.bar(fines_df["Period"], fines_df["Fine ($)"], color="red", alpha=0.7)
+plt.xlabel("Period")
+plt.ylabel("Fines ($/yr)")
+plt.title("Annual Fines Incurred Due to Non-Compliance")
+plt.grid(axis="y", linestyle="--", alpha=0.7)
+st.pyplot(plt)
+
+# Add your new code here for the additional plots
+# Variable emission rates for electricity
+emission_rate_reduction = {
+    2024: 0.2889, 2025: 0.282544, 2026: 0.276188, 2027: 0.269832, 2028: 0.263476,
+    2029: 0.25712, 2030: 0.250764, 2031: 0.244408, 2032: 0.238052, 2033: 0.231696,
+    2034: 0.22534, 2035: 0.218984, 2036: 0.212628, 2037: 0.206272, 2038: 0.199916,
+    2039: 0.19356, 2040: 0.187204, 2041: 0.180848, 2042: 0.174492, 2043: 0.168136,
+    2044: 0.16178, 2045: 0.155424, 2046: 0.149068, 2047: 0.142712, 2048: 0.136356,
+    2049: 0.13
+}
+
+# Plot Benchmarks vs Building Emissions for Current and Reduced Emission Rates
 years = list(range(2024, 2050))
 benchmark_emissions = [emission_benchmarks[f"{year}-{min(year+5, 2049)}" if year < 2040 else "2040-2049"] for year in years]
 building_emissions_current = [per_sq_ft_emissions] * len(years)
@@ -323,9 +328,5 @@ plt.grid(axis="y", linestyle="--", alpha=0.7)
 st.pyplot(plt)
 
 else:
-        st.error(f"API Call Failed: {response.status_code}")
-        st.write(response.text)
-
-
-
-
+    st.error(f"API Call Failed: {response.status_code}")
+    st.write(response.text)
