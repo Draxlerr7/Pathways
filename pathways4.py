@@ -154,7 +154,7 @@ if st.sidebar.button("Submit"):
         "content-type": "application/json",
         "X-API-Key": API_KEY
     }
-    response = requests.post(API_URL, json=payload, headers=headers)
+response = requests.post(API_URL, json=payload, headers=headers)
 
     # Existing content
 if response.status_code == 200:
