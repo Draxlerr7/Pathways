@@ -18,32 +18,14 @@ emission_benchmarks = {
     "2035–2039": 2.692183,
     "2040–2049": 2.052731
 }
-reduced_emission_factors = {
-    2024: 0.2889,
-    2025: 0.282544,
-    2026: 0.276188,
-    2027: 0.269832,
-    2028: 0.263476,
-    2029: 0.25712,
-    2030: 0.250764,
-    2031: 0.244408,
-    2032: 0.238052,
-    2033: 0.231696,
-    2034: 0.22534,
-    2035: 0.218984,
-    2036: 0.212628,
-    2037: 0.206272,
-    2038: 0.199916,
-    2039: 0.19356,
-    2040: 0.187204,
-    2041: 0.180848,
-    2042: 0.174492,
-    2043: 0.168136,
-    2044: 0.16178,
-    2045: 0.155424,
-    2046: 0.149068,
-    2047: 0.142712,
-    2048: 0.136356,
+
+# Emission Factors for each year (2024–2049)
+emission_rate_reduction = {
+    2024: 0.2889, 2025: 0.282544, 2026: 0.276188, 2027: 0.269832, 2028: 0.263476,
+    2029: 0.25712, 2030: 0.250764, 2031: 0.244408, 2032: 0.238052, 2033: 0.231696,
+    2034: 0.22534, 2035: 0.218984, 2036: 0.212628, 2037: 0.206272, 2038: 0.199916,
+    2039: 0.19356, 2040: 0.187204, 2041: 0.180848, 2042: 0.174492, 2043: 0.168136,
+    2044: 0.16178, 2045: 0.155424, 2046: 0.149068, 2047: 0.142712, 2048: 0.136356,
     2049: 0.13
 }
 
@@ -127,10 +109,7 @@ if latitude and longitude:
     production_capacity = st.sidebar.number_input("Production Capacity (kW)", value=0.0)
 
     # Submit Button
-# Submit Button
-if st.sidebar.button("Submit"):
-    # Ensure latitude and longitude are valid
-    if latitude is not None and longitude is not None:
+    if st.sidebar.button("Submit"):
         # Payload Construction
         payload = {
             "location": {"latitude": latitude, "longitude": longitude},
@@ -138,13 +117,8 @@ if st.sidebar.button("Submit"):
                 "from_datetime": from_datetime,
                 "to_datetime": to_datetime,
                 "variables": [
-                    "emissions",
-                    "consumption.electricity",
-                    "consumption.fossil_fuel",
-                    "costs.fossil_fuel",
-                    "costs.electricity",
-                    "emissions.electricity",
-                    "emissions.fossil_fuel"
+                    "emissions", "consumption.electricity", "consumption.fossil_fuel",
+                    "costs.fossil_fuel", "costs.electricity", "emissions.electricity", "emissions.fossil_fuel"
                 ],
                 "group_by": "year"
             },
@@ -203,183 +177,107 @@ if st.sidebar.button("Submit"):
             "content-type": "application/json",
             "X-API-Key": API_KEY
         }
-        
-    response = requests.post(API_URL, json=payload, headers=headers)
+        response = requests.post(API_URL, json=payload, headers=headers)
 
-    if response.status_code == 200:
-    # Process the response data
-        data = response.json()
+        if response.status_code == 200:
+            # Process the response data
+            data = response.json()
+            
+            # Extract location details
+            location_info = data["data"]["location"]
+            intervals = pd.DataFrame(data["data"]["intervals"])
 
-    # Extract location details
-        location_info = data["data"]["location"]
-        intervals = pd.DataFrame(data["data"]["intervals"])
-    
-    # Extract location details
-        puma_fips = location_info.get("puma_fips", "N/A")
-        county = location_info.get("county", "N/A")
-        county_fips = location_info.get("county_fips", "N/A")
-        state = location_info.get("state", "N/A")
-        state_fips = location_info.get("state_fips", "N/A")
-        climate_zone = location_info.get("climate_zone", "N/A")
+            # Extract location details
+            puma_fips = location_info.get("puma_fips", "N/A")
+            county = location_info.get("county", "N/A")
+            county_fips = location_info.get("county_fips", "N/A")
+            state = location_info.get("state", "N/A")
+            state_fips = location_info.get("state_fips", "N/A")
+            climate_zone = location_info.get("climate_zone", "N/A")
 
-    # Extract emissions and consumption data
-        total_emissions = intervals.query("variable == 'emissions'")["value"].iloc[0] * num_units
-        total_consumption = intervals.query("variable == 'consumption.electricity'")["value"].iloc[0] * num_units
-        per_sq_ft_emissions = total_emissions / (floor_area_ft2 * num_units)
+            # Extract emissions and consumption data
+            total_emissions = intervals.query("variable == 'emissions'")["value"].iloc[0] * num_units
+            total_consumption = intervals.query("variable == 'consumption.electricity'")["value"].iloc[0] * num_units
+            per_sq_ft_emissions = total_emissions / (floor_area_ft2 * num_units)
 
-    # Display Location Info
-        st.subheader("Location Information")
-        st.write(f"**PUMA FIPS:** {puma_fips}")
-        st.write(f"**County:** {county}")
-        st.write(f"**County FIPS:** {county_fips}")
-        st.write(f"**State:** {state}")
-        st.write(f"**State FIPS:** {state_fips}")
-        st.write(f"**Climate Zone:** {climate_zone}")
+            # Display Location Info
+            st.subheader("Location Information")
+            st.write(f"**PUMA FIPS:** {puma_fips}")
+            st.write(f"**County:** {county}")
+            st.write(f"**County FIPS:** {county_fips}")
+            st.write(f"**State:** {state}")
+            st.write(f"**State FIPS:** {state_fips}")
+            st.write(f"**Climate Zone:** {climate_zone}")
 
-    # Display Emissions and Consumption Info
-        st.subheader("Results")
-        st.metric("Total Emissions (kgCO2)", f"{total_emissions:.2f}")
-        st.metric("Total Energy Consumption (kWh)", f"{total_consumption:.2f}")
-        st.metric("Per Sq Ft Emissions (kgCO2/ft²)", f"{per_sq_ft_emissions:.4f}")
+            # Display Emissions and Consumption Info
+            st.subheader("Results")
+            st.metric("Total Emissions (kgCO2)", f"{total_emissions:.2f}")
+            st.metric("Total Energy Consumption (kWh)", f"{total_consumption:.2f}")
+            st.metric("Per Sq Ft Emissions (kgCO2/ft²)", f"{per_sq_ft_emissions:.4f}")
 
-    # Calculate Emissions vs Benchmarks
-        results = []
-        for period, benchmark in emission_benchmarks.items():
-            excess_emissions = max(0, per_sq_ft_emissions - benchmark) * floor_area_ft2 * num_units
-            results.append({
-                "Period": period,
-                "Benchmark Emissions (kgCO2/ft²)": benchmark,
-                "Building Emissions (kgCO2/ft²)": per_sq_ft_emissions,
-                "Excess Emissions (kgCO2)": excess_emissions
-            })
+            # Calculate Emissions vs Benchmarks
+            results = []
+            for period, benchmark in emission_benchmarks.items():
+                excess_emissions = max(0, per_sq_ft_emissions - benchmark) * floor_area_ft2 * num_units
+                results.append({
+                    "Period": period,
+                    "Benchmark Emissions (kgCO2/ft²)": benchmark,
+                    "Building Emissions (kgCO2/ft²)": per_sq_ft_emissions,
+                    "Excess Emissions (kgCO2)": excess_emissions
+                })
 
-    # Convert results to DataFrame
-        results_df = pd.DataFrame(results)
-        st.dataframe(results_df)
+            # Convert results to DataFrame
+            results_df = pd.DataFrame(results)
+            st.dataframe(results_df)
 
-    # Plot Benchmarks vs Building Emissions
-        years = [year for year, _ in benchmark_timeline]
-        benchmark_emissions = [value for _, value in benchmark_timeline]
-        building_emissions = [per_sq_ft_emissions] * len(years)
+            # Plot Benchmarks vs Building Emissions
+            years = [year for year, _ in benchmark_timeline]
+            benchmark_emissions = [value for _, value in benchmark_timeline]
+            building_emissions = [per_sq_ft_emissions] * len(years)
 
-        plt.figure(figsize=(10, 6))
-        plt.plot(years, benchmark_emissions, label="Threshold Emissions (kgCO2/ft²)", color="blue", linestyle="--")
-        plt.plot(years, building_emissions, label="Building Emissions (kgCO2/ft²)", color="red")
-        plt.xlabel("Year")
-        plt.ylabel("Emissions (kgCO2/ft²)")
-        plt.title("Your Building Emissions vs Threshold Emissions")
-        plt.legend()
-        plt.grid(True)
-        st.pyplot(plt)
+            plt.figure(figsize=(10, 6))
+            plt.plot(years, benchmark_emissions, label="Threshold Emissions (kgCO2/ft²)", color="blue", linestyle="--")
+            plt.plot(years, building_emissions, label="Building Emissions (kgCO2/ft²)", color="red")
+            plt.xlabel("Year")
+            plt.ylabel("Emissions (kgCO2/ft²)")
+            plt.title("Your Building Emissions vs Threshold Emissions")
+            plt.legend()
+            plt.grid(True)
+            st.pyplot(plt)
 
-    # Calculate fines for non-compliance for each period
-        fines = []
-        for period, benchmark in emission_benchmarks.items():
-            total_excess_emissions = max(0, (per_sq_ft_emissions - benchmark) * floor_area_ft2 * num_units)
-            fine = total_excess_emissions * 0.269  # Fine calculation
-            fines.append({
-                "Period": period,
-                "Threshold Emissions (kgCO2/ft²)": benchmark,
-                "Excess Emissions (kgCO2)": total_excess_emissions,
-                "Fine ($)": fine
-            })
+            # Calculate fines for non-compliance for each period
+            fines = []
+            for period, benchmark in emission_benchmarks.items():
+                total_excess_emissions = max(0, (per_sq_ft_emissions - benchmark) * floor_area_ft2 * num_units)
+                fine = total_excess_emissions * 0.269  # Fine calculation
+                fines.append({
+                    "Period": period,
+                    "Threshold Emissions (kgCO2/ft²)": benchmark,
+                    "Excess Emissions (kgCO2)": total_excess_emissions,
+                    "Fine ($)": fine
+                })
 
-    # Convert fines data to DataFrame
-        fines_df = pd.DataFrame(fines)
-        st.subheader("BPS Compliance Fine Results")
-        st.dataframe(fines_df)
+            # Convert fines data to DataFrame
+            fines_df = pd.DataFrame(fines)
+            st.subheader("BPS Compliance Fine Results")
+            st.dataframe(fines_df)
 
-    # Plot fines for each year
-        plt.figure(figsize=(10, 6))
-        plt.bar(fines_df["Period"], fines_df["Fine ($)"], color="red", alpha=0.7)
-        plt.xlabel("Period")
-        plt.ylabel("Fines ($/yr)")
-        plt.title("Annual Fines Incurred Due to Non-Compliance")
-        plt.grid(axis="y", linestyle="--", alpha=0.7)
-        st.pyplot(plt)
-    else:
-        st.error(f"API Call Failed: {response.status_code}")
-        st.write(response.text)
-# Emission Factors for each year (2024–2049)
-# Plot Benchmarks vs Building Emissions for Current and Reduced Emission Rates
-years = [year for year, _ in benchmark_timeline]
-benchmark_emissions = [value for _, value in benchmark_timeline]
-building_emissions_current = [per_sq_ft_emissions] * len(years)
+            # Plot fines for each year
+            plt.figure(figsize=(10, 6))
+            plt.bar(fines_df["Period"], fines_df["Fine ($)"], color="red", alpha=0.7)
+            plt.xlabel("Period")
+            plt.ylabel("Fines ($/yr)")
+            plt.title("Annual Fines Incurred Due to Non-Compliance")
+            plt.grid(axis="y", linestyle="--", alpha=0.7)
+            st.pyplot(plt)
 
-# Calculate building emissions with emission rate reduction
+            # Plot Benchmarks vs Building Emissions for Current and Reduced Emission Rates
+            building_emissions_reduced = [
+                per_sq_ft_emissions * emission_rate_reduction.get(year, 0.2889) / 0.2889
+                for year in years
+            ]
 
-building_emissions_reduced = [
-    per_sq_ft_emissions * emission_rate_reduction.get(year, 0.2889) / 0.2889
-    for year in years
-]
+            plt.figure(figsize=(10, 6))
+            plt.plot(years, benchmark_emissions, label="Threshold Emissions (kgCO2/ft²)", color="blue", linestyle="--")
+            plt.plot
 
-# First Plot: Benchmark vs Building Emissions (Current and Reduced Rates)
-plt.figure(figsize=(10, 6))
-plt.plot(years, benchmark_emissions, label="Threshold Emissions (kgCO2/ft²)", color="blue", linestyle="--")
-plt.plot(years, building_emissions_current, label="Building Emissions (Current Rates)", color="red")
-plt.plot(years, building_emissions_reduced, label="Building Emissions (Reduced Rates)", color="green", linestyle=":")
-plt.xlabel("Year")
-plt.ylabel("Emissions (kgCO2/ft²)")
-plt.title("Your Building Emissions vs Threshold Emissions (Current and Reduced Rates)")
-plt.legend()
-plt.grid(True)
-st.pyplot(plt)
-
-# Correctly calculate building emissions for reduced rates
-# Define fines_current and fines_reduced
-fines_current = []
-fines_reduced = []
-
-# Loop through years to calculate fines
-for year, reduced_emission in zip(years, building_emissions_reduced):
-    # Retrieve benchmark emissions
-    benchmark_emission = next(
-        (value for y, value in benchmark_timeline if y == year), None
-    )
-
-    if benchmark_emission is not None:
-        # Calculate excess emissions for current and reduced rates
-        excess_emissions_current = max(0, (building_emissions_current[0] - benchmark_emission) * floor_area_ft2 * num_units)
-        fine_current = excess_emissions_current * 0.269
-        fines_current.append(fine_current)
-
-        excess_emissions_reduced = max(0, (reduced_emission - benchmark_emission) * floor_area_ft2 * num_units)
-        fine_reduced = excess_emissions_reduced * 0.269
-        fines_reduced.append(fine_reduced)
-    else:
-        st.error(f"Benchmark emissions for year {year} not found!")
-        fines_current.append(0)
-        fines_reduced.append(0)
-
-# Check alignment of fines with years
-if len(fines_current) != len(years) or len(fines_reduced) != len(years):
-    st.error("Mismatch in lengths of fines data and years.")
-else:
-    # Plot fines for Current and Reduced Emissions
-    plt.figure(figsize=(10, 6))
-    width = 0.4
-    x_positions = range(len(years))
-
-    plt.bar(
-        [x - width / 2 for x in x_positions],
-        fines_current,
-        width=width,
-        color="red",
-        alpha=0.7,
-        label="Fines (Current Rates)"
-    )
-    plt.bar(
-        [x + width / 2 for x in x_positions],
-        fines_reduced,
-        width=width,
-        color="green",
-        alpha=0.5,
-        label="Fines (Reduced Rates)"
-    )
-    plt.xticks(x_positions, [str(year) for year in years], rotation=45)
-    plt.xlabel("Year")
-    plt.ylabel("Fines ($/yr)")
-    plt.title("Annual Fines Incurred Due to Non-Compliance (Current vs Reduced Rates)")
-    plt.legend()
-    plt.grid(axis="y", linestyle="--", alpha=0.7)
-    st.pyplot(plt)
