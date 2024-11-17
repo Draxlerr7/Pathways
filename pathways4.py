@@ -166,14 +166,14 @@ if response.status_code == 200:
     per_sq_ft_emissions = total_emissions / (floor_area_ft2 * num_units)
         # Calculate Emissions vs Benchmarks
     results = []
-        for period, benchmark in emission_benchmarks.items():
-            excess_emissions = max(0, per_sq_ft_emissions - benchmark) * floor_area_ft2 * num_units
-            results.append({
-                "Period": period,
-                "Benchmark Emissions (kgCO2/ft²)": benchmark,
-                "Building Emissions (kgCO2/ft²)": per_sq_ft_emissions,
-                "Excess Emissions (kgCO2)": excess_emissions
-            })
+    for period, benchmark in emission_benchmarks.items():
+        excess_emissions = max(0, per_sq_ft_emissions - benchmark) * floor_area_ft2 * num_units
+        results.append({
+            "Period": period,
+            "Benchmark Emissions (kgCO2/ft²)": benchmark,
+            "Building Emissions (kgCO2/ft²)": per_sq_ft_emissions,
+            "Excess Emissions (kgCO2)": excess_emissions
+        })
 
         # Convert results to DataFrame
     results_df = pd.DataFrame(results)
