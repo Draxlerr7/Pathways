@@ -163,6 +163,12 @@ if st.sidebar.button("Submit"):
         total_consumption = intervals.query("variable == 'consumption.electricity'")["value"].iloc[0] * num_units
         per_sq_ft_emissions = total_emissions / (floor_area_ft2 * num_units)
 
+        # Display Results
+        st.subheader("Results")
+        st.metric("Total Emissions (kgCO2)", f"{total_emissions:.2f}")
+        st.metric("Total Energy Consumption (kWh)", f"{total_consumption:.2f}")
+        
+
         # Plot Benchmarks vs Building Emissions
         years = [year for year, _ in benchmark_timeline]
         benchmark_emissions = [value for _, value in benchmark_timeline]
@@ -178,11 +184,7 @@ if st.sidebar.button("Submit"):
         plt.grid(True)
         st.pyplot(plt)
 
-        # Display Results
-        st.subheader("Results")
-        st.metric("Total Emissions (kgCO2)", f"{total_emissions:.2f}")
-        st.metric("Total Energy Consumption (kWh)", f"{total_consumption:.2f}")
-        st.dataframe(results_df)
+        
 
     else:
         st.error(f"API Call Failed: {response.status_code}")
