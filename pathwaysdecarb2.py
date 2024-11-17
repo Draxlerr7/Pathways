@@ -265,68 +265,68 @@ if st.sidebar.button("Submit"):
     # ... (existing code)
 
 # Plot fines for each year
-plt.figure(figsize=(10, 6))
-plt.bar(fines_df["Period"], fines_df["Fine ($)"], color="red", alpha=0.7)
-plt.xlabel("Period")
-plt.ylabel("Fines ($/yr)")
-plt.title("Annual Fines Incurred Due to Non-Compliance")
-plt.grid(axis="y", linestyle="--", alpha=0.7)
-st.pyplot(plt)
+        plt.figure(figsize=(10, 6))
+        plt.bar(fines_df["Period"], fines_df["Fine ($)"], color="red", alpha=0.7)
+        plt.xlabel("Period")
+        plt.ylabel("Fines ($/yr)")
+        plt.title("Annual Fines Incurred Due to Non-Compliance")
+        plt.grid(axis="y", linestyle="--", alpha=0.7)
+        st.pyplot(plt)
 
 # Add your new code here for the additional plots
 # Variable emission rates for electricity
-emission_rate_reduction = {
-    2024: 0.2889, 2025: 0.282544, 2026: 0.276188, 2027: 0.269832, 2028: 0.263476,
-    2029: 0.25712, 2030: 0.250764, 2031: 0.244408, 2032: 0.238052, 2033: 0.231696,
-    2034: 0.22534, 2035: 0.218984, 2036: 0.212628, 2037: 0.206272, 2038: 0.199916,
-    2039: 0.19356, 2040: 0.187204, 2041: 0.180848, 2042: 0.174492, 2043: 0.168136,
-    2044: 0.16178, 2045: 0.155424, 2046: 0.149068, 2047: 0.142712, 2048: 0.136356,
-    2049: 0.13
-}
+        emission_rate_reduction = {
+            2024: 0.2889, 2025: 0.282544, 2026: 0.276188, 2027: 0.269832, 2028: 0.263476,
+            2029: 0.25712, 2030: 0.250764, 2031: 0.244408, 2032: 0.238052, 2033: 0.231696,
+            2034: 0.22534, 2035: 0.218984, 2036: 0.212628, 2037: 0.206272, 2038: 0.199916,
+            2039: 0.19356, 2040: 0.187204, 2041: 0.180848, 2042: 0.174492, 2043: 0.168136,
+            2044: 0.16178, 2045: 0.155424, 2046: 0.149068, 2047: 0.142712, 2048: 0.136356,
+            2049: 0.13
+        }
 
 # Plot Benchmarks vs Building Emissions for Current and Reduced Emission Rates
-years = list(range(2024, 2050))
-benchmark_emissions = [emission_benchmarks[f"{year}-{min(year+5, 2049)}" if year < 2040 else "2040-2049"] for year in years]
-building_emissions_current = [per_sq_ft_emissions] * len(years)
-building_emissions_reduced = [per_sq_ft_emissions * emission_rate_reduction[year] / 0.2889 for year in years]
+        years = list(range(2024, 2050))
+        benchmark_emissions = [emission_benchmarks[f"{year}-{min(year+5, 2049)}" if year < 2040 else "2040-2049"] for year in years]
+        building_emissions_current = [per_sq_ft_emissions] * len(years)
+        building_emissions_reduced = [per_sq_ft_emissions * emission_rate_reduction[year] / 0.2889 for year in years]
 
-plt.figure(figsize=(12, 6))
-plt.plot(years, benchmark_emissions, label="Threshold Emissions (kgCO2/ft²)", color="blue", linestyle="--")
-plt.plot(years, building_emissions_current, label="Building Emissions (Current Rates)", color="red")
-plt.plot(years, building_emissions_reduced, label="Building Emissions (Reduced Rates)", color="green", linestyle=":")
-plt.xlabel("Year")
-plt.ylabel("Emissions (kgCO2/ft²)")
-plt.title("Your Building Emissions vs Threshold Emissions (Current and Reduced Rates)")
-plt.legend()
-plt.grid(True)
-st.pyplot(plt)
+        plt.figure(figsize=(12, 6))
+        plt.plot(years, benchmark_emissions, label="Threshold Emissions (kgCO2/ft²)", color="blue", linestyle="--")
+        plt.plot(years, building_emissions_current, label="Building Emissions (Current Rates)", color="red")
+        plt.plot(years, building_emissions_reduced, label="Building Emissions (Reduced Rates)", color="green", linestyle=":")
+        plt.xlabel("Year")
+        plt.ylabel("Emissions (kgCO2/ft²)")
+        plt.title("Your Building Emissions vs Threshold Emissions (Current and Reduced Rates)")
+        plt.legend()
+        plt.grid(True)
+        st.pyplot(plt)
 
 # Calculate fines for current and reduced rates
-fines_current = []
-fines_reduced = []
-for year, benchmark in zip(years, benchmark_emissions):
-    excess_emissions_current = max(0, (building_emissions_current[0] - benchmark) * floor_area_ft2 * num_units)
-    fine_current = excess_emissions_current * 0.269
-    fines_current.append(fine_current)
+        fines_current = []
+        fines_reduced = []
+        for year, benchmark in zip(years, benchmark_emissions):
+            excess_emissions_current = max(0, (building_emissions_current[0] - benchmark) * floor_area_ft2 * num_units)
+            fine_current = excess_emissions_current * 0.269
+            fines_current.append(fine_current)
     
-    excess_emissions_reduced = max(0, (building_emissions_reduced[year-2024] - benchmark) * floor_area_ft2 * num_units)
-    fine_reduced = excess_emissions_reduced * 0.269
-    fines_reduced.append(fine_reduced)
+            excess_emissions_reduced = max(0, (building_emissions_reduced[year-2024] - benchmark) * floor_area_ft2 * num_units)
+            fine_reduced = excess_emissions_reduced * 0.269
+            fines_reduced.append(fine_reduced)
 
 # Plot fines for current and reduced rates
-plt.figure(figsize=(12, 6))
-width = 0.35
-x_positions = range(len(years))
-plt.bar([x - width/2 for x in x_positions], fines_current, width, color="red", alpha=0.7, label="Fines (Current Rates)")
-plt.bar([x + width/2 for x in x_positions], fines_reduced, width, color="green", alpha=0.5, label="Fines (Reduced Rates)")
-plt.xlabel("Year")
-plt.ylabel("Fines ($/yr)")
-plt.title("Annual Fines Incurred Due to Non-Compliance (Current vs Reduced Rates)")
-plt.legend()
-plt.xticks(x_positions[::5], [str(year) for year in years[::5]], rotation=45)
-plt.grid(axis="y", linestyle="--", alpha=0.7)
-st.pyplot(plt)
-
-   else:
-    st.error(f"API Call Failed: {response.status_code}")
-    st.write(response.text)
+        plt.figure(figsize=(12, 6))
+        width = 0.35
+        x_positions = range(len(years))
+        plt.bar([x - width/2 for x in x_positions], fines_current, width, color="red", alpha=0.7, label="Fines (Current Rates)")
+        plt.bar([x + width/2 for x in x_positions], fines_reduced, width, color="green", alpha=0.5, label="Fines (Reduced Rates)")
+        plt.xlabel("Year")
+        plt.ylabel("Fines ($/yr)")
+        plt.title("Annual Fines Incurred Due to Non-Compliance (Current vs Reduced Rates)")
+        plt.legend()
+        plt.xticks(x_positions[::5], [str(year) for year in years[::5]], rotation=45)
+        plt.grid(axis="y", linestyle="--", alpha=0.7)
+        st.pyplot(plt)
+    
+    else:
+        st.error(f"API Call Failed: {response.status_code}")
+        st.write(response.text)
