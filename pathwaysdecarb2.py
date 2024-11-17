@@ -340,28 +340,41 @@ for period, benchmark in emission_benchmarks.items():
         * floor_area_ft2
         * num_units
     )
-    fine_reduced = total_excess_emissions_reduced * 269  # Fine calculation for reduced rates
+    fine_reduced = total_excess_emissions_reduced * 0.269  # Fine calculation for reduced rates
     fines_reduced.append(fine_reduced)
 
 # Second Plot: Fines for Current and Reduced Rates
-plt.figure(figsize=(10, 6))
-plt.bar(
-    [str(year) for year in years],
-    fines_current,
-    color="red",
-    alpha=0.7,
-    label="Fines (Current Rates)",
-)
-plt.bar(
-    [str(year) for year in years],
-    fines_reduced,
-    color="green",
-    alpha=0.5,
-    label="Fines (Reduced Rates)",
-)
-plt.xlabel("Year")
-plt.ylabel("Fines ($/yr)")
-plt.title("Annual Fines Incurred Due to Non-Compliance (Current vs Reduced Rates)")
-plt.legend()
-plt.grid(axis="y", linestyle="--", alpha=0.7)
-st.pyplot(plt)
+# After calculating fines_current and fines_reduced, add the plot
+if len(fines_current) != len(years) or len(fines_reduced) != len(years):
+    st.error("Mismatched lengths in fines data. Ensure fines_current and fines_reduced align with years.")
+else:
+    # Second Plot: Fines for Current and Reduced Rates
+    plt.figure(figsize=(10, 6))
+    width = 0.4  # Width of the bars
+
+    # Generate x positions for grouped bar plot
+    x_positions = range(len(years))
+
+    plt.bar(
+        [x - width / 2 for x in x_positions],  # Offset positions for current fines
+        fines_current,
+        width=width,
+        color="red",
+        alpha=0.7,
+        label="Fines (Current Rates)",
+    )
+    plt.bar(
+        [x + width / 2 for x in x_positions],  # Offset positions for reduced fines
+        fines_reduced,
+        width=width,
+        color="green",
+        alpha=0.5,
+        label="Fines (Reduced Rates)",
+    )
+    plt.xticks(x_positions, [str(year) for year in years], rotation=45)  # Ensure proper alignment of x-ticks
+    plt.xlabel("Year")
+    plt.ylabel("Fines ($/yr)")
+    plt.title("Annual Fines Incurred Due to Non-Compliance (Current vs Reduced Rates)")
+    plt.legend()
+    plt.grid(axis="y", linestyle="--", alpha=0.7)
+    st.pyplot(plt)
