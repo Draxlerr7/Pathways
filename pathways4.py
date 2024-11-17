@@ -156,114 +156,104 @@ if st.sidebar.button("Submit"):
     }
     response = requests.post(API_URL, json=payload, headers=headers)
 
-    if response.status_code == 200:
-        data = response.json()
-        intervals = pd.DataFrame(data["data"]["intervals"])
-        total_emissions = intervals.query("variable == 'emissions'")["value"].iloc[0] * num_units
-        total_consumption = intervals.query("variable == 'consumption.electricity'")["value"].iloc[0] * num_units
-        per_sq_ft_emissions = total_emissions / (floor_area_ft2 * num_units)
+    # Existing content
+if response.status_code == 200:
+    data = response.json()
+    intervals = pd.DataFrame(data["data"]["intervals"])
+    total_emissions = intervals.query("variable == 'emissions'")["value"].iloc[0] * num_units
+    per_sq_ft_emissions = total_emissions / (floor_area_ft2 * num_units)
 
-        # Display Results
-        st.subheader("Results")
-        st.metric("Total Emissions (kgCO2)", f"{total_emissions:.2f}")
-        st.metric("Total Energy Consumption (kWh)", f"{total_consumption:.2f}")
+    # Define decarbonization trajectory
+    start_year = 2024
+    end_year = 2050
+    initial_emission_factor = 0.2889  # kgCO2/kWh in 2024
+    final_emission_factor = 0.05  # kgCO2/kWh in 2050
+    years = list(range(start_year, end_year + 1))
+    decarbonization_factors = [
+        initial_emission_factor + (final_emission_factor - initial_emission_factor) * (year - start_year) / (end_year - start_year)
+        for year in years
+    ]
 
-        total_emissions = intervals.query("variable == 'emissions'")["value"].iloc[0] * num_units
-        per_sq_ft_emissions = total_emissions / (floor_area_ft2 * num_units)
-        # Define decarbonization trajectory
-        start_year = 2024
-        end_year = 2050
-        initial_emission_factor = 0.2889  # kgCO2/kWh in 2024
-        final_emission_factor = 0.05  # kgCO2/kWh in 2050
-        years = list(range(start_year, end_year + 1))
-        decarbonization_factors = [
-            initial_emission_factor + (final_emission_factor - initial_emission_factor) * (year - start_year) / (end_year - start_year)
-            for year in years
-        ]
-
-# Define benchmark emissions for each year
-        benchmark_emissions = []
-        for year in years:
-            for period, benchmark in emission_benchmarks.items():
-                start_year, end_year = map(int, period.split("–"))
-                if start_year <= year <= end_year:
-                    benchmark_emissions.append(benchmark)
-                    break
-
-# Calculate building emissions under decarbonized grid
-        decarbonized_emissions_per_sq_ft = []
-        for factor in decarbonization_factors:
-            decarbonized_emissions = total_emissions * (factor / initial_emission_factor)
-            decarbonized_emissions_per_sq_ft.append(decarbonized_emissions / (floor_area_ft2 * num_units))
-
-# Plot updated Benchmark vs Building Emissions
-        plt.figure(figsize=(10, 6))
-        plt.plot(years, benchmark_emissions, label="Benchmark Emissions (kgCO2/ft²)", color="blue", marker="o")
-        plt.plot(years, [per_sq_ft_emissions] * len(years), label="Building Emissions (kgCO2/ft²)", color="red", linestyle="--")
-        plt.plot(years, decarbonized_emissions_per_sq_ft, label="Decarbonized Grid (kgCO2/ft²)", color="green", linestyle=":")
-        plt.xlabel("Year")
-        plt.ylabel("Emissions (kgCO2/ft²)")
-        plt.title("Building Emissions vs Benchmark Emissions (Including Decarbonized Grid)")
-        plt.legend()
-        plt.grid(True)
-        st.pyplot(plt)
-
-# Calculate fines for the current grid scenario
-        fines = []
+    # Define benchmark emissions for each year
+    benchmark_emissions = []
+    for year in years:
         for period, benchmark in emission_benchmarks.items():
-            total_excess_emissions = max(0, (per_sq_ft_emissions - benchmark) * floor_area_ft2 * num_units)
-            fine = total_excess_emissions * 269  # Fine calculation
-            fines.append({
-                "Period": period,
-                "Benchmark Emissions (kgCO2/ft²)": benchmark,
-                "Excess Emissions (kgCO2)": total_excess_emissions,
-                "Fine ($)": fine
-            })
-        
-        # Convert fines data to DataFrame
-        fines_df = pd.DataFrame(fines)
+            start_year, end_year = map(int, period.split("–"))
+            if start_year <= year <= end_year:
+                benchmark_emissions.append(benchmark)
+                break
 
-# Calculate fines for the decarbonized grid scenario
-        decarbonized_fines = []
-        for year, factor, benchmark in zip(years, decarbonization_factors, benchmark_emissions):
-            decarbonized_emissions = total_emissions * (factor / initial_emission_factor)
-            decarbonized_per_sq_ft = decarbonized_emissions / (floor_area_ft2 * num_units)
-            total_excess_emissions = max(0, (decarbonized_per_sq_ft - benchmark) * floor_area_ft2 * num_units)
-            fine = total_excess_emissions * 269
-            decarbonized_fines.append({
-                "Year": year,
-                "Decarbonized Grid Emissions (kgCO2/ft²)": decarbonized_per_sq_ft,
-                "Excess Emissions (kgCO2)": total_excess_emissions,
-                "Fine ($)": fine
-            })
-        
-        # Convert decarbonized fines data to DataFrame
-        decarbonized_fines_df = pd.DataFrame(decarbonized_fines)
-        
-        # Update Fine Plot
-        plt.figure(figsize=(10, 6))
-        plt.bar(fines_df["Period"], fines_df["Fine ($)"], color="red", alpha=0.7, label="Current Grid")
-        plt.bar(decarbonized_fines_df["Year"], decarbonized_fines_df["Fine ($)"], color="green", alpha=0.5, label="Decarbonized Grid")
-        plt.xlabel("Year")
-        plt.ylabel("Fine ($)")
-        plt.title("Building Emission Fines Due to Non-Compliance (Including Decarbonized Grid)")
-        plt.legend()
-        plt.grid(axis="y", linestyle="--", alpha=0.7)
-        st.pyplot(plt)
-        
-        # Display Fine Results
-        st.subheader("BPS Compliance Fine Results")
-        st.dataframe(fines_df)
-        
-        # Display Decarbonized Fine Results
-        st.subheader("BPS Compliance Fine Results (Decarbonized Grid)")
-        st.dataframe(decarbonized_fines_df)
-        
-        
-            
+    # Calculate building emissions under decarbonized grid
+    decarbonized_emissions_per_sq_ft = []
+    for factor in decarbonization_factors:
+        decarbonized_emissions = total_emissions * (factor / initial_emission_factor)
+        decarbonized_emissions_per_sq_ft.append(decarbonized_emissions / (floor_area_ft2 * num_units))
 
-     else:
-        st.error(f"API Call Failed: {response.status_code}")
-        st.write(response.text)
+    # Plot updated Benchmark vs Building Emissions
+    plt.figure(figsize=(10, 6))
+    plt.plot(years, benchmark_emissions, label="Benchmark Emissions (kgCO2/ft²)", color="blue", marker="o")
+    plt.plot(years, [per_sq_ft_emissions] * len(years), label="Building Emissions (kgCO2/ft²)", color="red", linestyle="--")
+    plt.plot(years, decarbonized_emissions_per_sq_ft, label="Decarbonized Grid (kgCO2/ft²)", color="green", linestyle=":")
+    plt.xlabel("Year")
+    plt.ylabel("Emissions (kgCO2/ft²)")
+    plt.title("Building Emissions vs Benchmark Emissions (Including Decarbonized Grid)")
+    plt.legend()
+    plt.grid(True)
+    st.pyplot(plt)
+
+    # Calculate fines for the current grid scenario
+    fines = []
+    for period, benchmark in emission_benchmarks.items():
+        total_excess_emissions = max(0, (per_sq_ft_emissions - benchmark) * floor_area_ft2 * num_units)
+        fine = total_excess_emissions * 269  # Fine calculation
+        fines.append({
+            "Period": period,
+            "Benchmark Emissions (kgCO2/ft²)": benchmark,
+            "Excess Emissions (kgCO2)": total_excess_emissions,
+            "Fine ($)": fine
+        })
+
+    # Convert fines data to DataFrame
+    fines_df = pd.DataFrame(fines)
+
+    # Calculate fines for the decarbonized grid scenario
+    decarbonized_fines = []
+    for year, factor, benchmark in zip(years, decarbonization_factors, benchmark_emissions):
+        decarbonized_emissions = total_emissions * (factor / initial_emission_factor)
+        decarbonized_per_sq_ft = decarbonized_emissions / (floor_area_ft2 * num_units)
+        total_excess_emissions = max(0, (decarbonized_per_sq_ft - benchmark) * floor_area_ft2 * num_units)
+        fine = total_excess_emissions * 269
+        decarbonized_fines.append({
+            "Year": year,
+            "Decarbonized Grid Emissions (kgCO2/ft²)": decarbonized_per_sq_ft,
+            "Excess Emissions (kgCO2)": total_excess_emissions,
+            "Fine ($)": fine
+        })
+
+    # Convert decarbonized fines data to DataFrame
+    decarbonized_fines_df = pd.DataFrame(decarbonized_fines)
+
+    # Update Fine Plot
+    plt.figure(figsize=(10, 6))
+    plt.bar(fines_df["Period"], fines_df["Fine ($)"], color="red", alpha=0.7, label="Current Grid")
+    plt.bar(decarbonized_fines_df["Year"], decarbonized_fines_df["Fine ($)"], color="green", alpha=0.5, label="Decarbonized Grid")
+    plt.xlabel("Year")
+    plt.ylabel("Fine ($)")
+    plt.title("Building Emission Fines Due to Non-Compliance (Including Decarbonized Grid)")
+    plt.legend()
+    plt.grid(axis="y", linestyle="--", alpha=0.7)
+    st.pyplot(plt)
+
+    # Display Fine Results
+    st.subheader("BPS Compliance Fine Results")
+    st.dataframe(fines_df)
+
+    # Display Decarbonized Fine Results
+    st.subheader("BPS Compliance Fine Results (Decarbonized Grid)")
+    st.dataframe(decarbonized_fines_df)
+
+else:
+    st.error(f"API Call Failed: {response.status_code}")
+    st.write(response.text)
 
   
