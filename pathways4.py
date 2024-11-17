@@ -54,7 +54,7 @@ hvac_heating_setpoint = st.sidebar.number_input("HVAC Heating Setpoint (°C)", v
 hvac_cooling_setpoint = st.sidebar.number_input("HVAC Cooling Setpoint (°C)", value=18.4)
 
 # Water Heating
-water_heater = st.sidebar.selectbox("Water Heating Fuel", ["Fossil Fuel Standard", "Electric", "Solar"])
+water_heater = st.sidebar.selectbox("Water Heating Fuel", ["Fossil Fuel Standard", "Electric Standard"])
 
 # Lighting Inputs
 lighting = st.sidebar.selectbox("Lighting Type", ["Incandescent", "LED", "CFL"])
