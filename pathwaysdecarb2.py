@@ -160,7 +160,7 @@ if st.sidebar.button("Submit"):
             "costs": {
                 "emission_rates": {
                     "electricity": {"value": 0.2889, "units": "kgCO2/kWh"},
-                    "fossil_fuel": {"value": 0.059}
+                    "fossil_fuel": {"value": 0.12}
                 },
                 "utility_rates": {
                     "electricity": {"value": 0.2521},
