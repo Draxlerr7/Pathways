@@ -309,16 +309,19 @@ st.pyplot(plt)
 fines_current = []
 fines_reduced = []
 
-for year in years:
+for year, reduced_emission in zip(years, reduced_emissions):
     if year in emission_factors:
-        # Calculate fines for current and reduced emission factors
-        excess_emissions_current = max(0, (per_sq_ft_emissions - benchmark_emissions[year]) * floor_area_ft2 * num_units)
-        fine_current = excess_emissions_current * 269  # Fine calculation for current rates
+        # Benchmark emission for the current year
+        benchmark_emission = emission_benchmarks.get(f"{year}–{year + 5}", benchmark_emissions[0])
+
+        # Calculate fines for current rates
+        excess_emissions_current = max(0, (per_sq_ft_emissions - benchmark_emission) * floor_area_ft2 * num_units)
+        fine_current = excess_emissions_current * 0.269  # Fine calculation for current rates
         fines_current.append(fine_current)
 
-        reduced_rate = emission_factors[year]
-        excess_emissions_reduced = max(0, (reduced_rate - benchmark_emissions[year]) * floor_area_ft2 * num_units)
-        fine_reduced = excess_emissions_reduced * 269  # Fine calculation for reduced rates
+        # Calculate fines for reduced rates
+        excess_emissions_reduced = max(0, (reduced_emission - benchmark_emission) * floor_area_ft2 * num_units)
+        fine_reduced = excess_emissions_reduced * 0.269  # Fine calculation for reduced rates
         fines_reduced.append(fine_reduced)
     else:
         st.error(f"Emission factor for year {year} is missing!")
@@ -333,6 +336,7 @@ else:
     width = 0.4  # Width of the bars
     x_positions = range(len(years))
 
+    # Plot fines for current rates
     plt.bar(
         [x - width / 2 for x in x_positions],
         fines_current,
@@ -341,6 +345,7 @@ else:
         alpha=0.7,
         label="Fines (Current Rates)",
     )
+    # Plot fines for reduced rates
     plt.bar(
         [x + width / 2 for x in x_positions],
         fines_reduced,
@@ -356,3 +361,4 @@ else:
     plt.legend()
     plt.grid(axis="y", linestyle="--", alpha=0.7)
     st.pyplot(plt)
+
