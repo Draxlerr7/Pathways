@@ -81,15 +81,83 @@ storage_capacity_quantile = st.sidebar.number_input("Battery Storage Capacity Re
 production_capacity = st.sidebar.number_input("Production Capacity (kW)", value=0.0)
 
 # Submit Button
+# Submit Button
 if st.sidebar.button("Submit"):
+    # Payload Construction
+    payload = {
+        "location": {"latitude": latitude, "longitude": longitude},
+        "parameters": {
+            "from_datetime": from_datetime,
+            "to_datetime": to_datetime,
+            "variables": [
+                "emissions",
+                "consumption.electricity",
+                "consumption.fossil_fuel",
+                "costs.fossil_fuel",
+                "costs.electricity",
+                "emissions.electricity",
+                "emissions.fossil_fuel"
+            ],
+            "group_by": "year"
+        },
+        "consumption": {
+            "attributes": {
+                "baseline": [
+                    {"name": "building_type", "value": building_type},
+                    {"name": "floor_area", "value": floor_area_m2},
+                    {"name": "num_occupants", "value": num_occupants},
+                    {"name": "num_stories", "value": num_stories},
+                    {"name": "lighting", "value": lighting},
+                    {"name": "hvac_heating_fuel", "value": hvac_heating_fuel},
+                    {"name": "hvac_heating_setpoint", "value": hvac_heating_setpoint},
+                    {"name": "hvac_cooling_setpoint", "value": hvac_cooling_setpoint},
+                    {"name": "roof_or_ceiling_insulation", "value": roof_insulation},
+                    {"name": "window_panes", "value": window_type},
+                    {"name": "water_heater", "value": water_heater},
+                    {"name": "wall_type", "value": wall_type},
+                    {"name": "ev_charging", "value": ev_charging_value},
+                    {"name": "clothes_dryer_fuel", "value": clothes_dryer_fuel},
+                    {"name": "clothes_dryer_efficiency", "value": clothes_dryer_efficiency},
+                    {"name": "clothes_washer_efficiency", "value": clothes_washer_efficiency},
+                    {"name": "cooking_range", "value": cooking_range}
+                ]
+            }
+        },
+        "storage": {
+            "attributes": {
+                "baseline": [
+                    {"name": "capacity_recommendation_quantile", "value": storage_capacity_quantile}
+                ]
+            }
+        },
+        "production": {
+            "attributes": {
+                "baseline": [
+                    {"name": "capacity", "value": production_capacity}
+                ]
+            }
+        },
+        "costs": {
+            "emission_rates": {
+                "electricity": {"value": 0.2889, "units": "kgCO2/kWh"},
+                "fossil_fuel": {"value": 0.059}
+            },
+            "utility_rates": {
+                "electricity": {"value": 0.2521},
+                "fossil_fuel": {"value": 0.0698}
+            }
+        }
+    }
+
     # API Call
     headers = {
         "accept": "application/json",
         "content-type": "application/json",
         "X-API-Key": API_KEY
     }
-    response = requests.post(API_URL, json=payload, headers=headers)  # API call moved inside the button block
+    response = requests.post(API_URL, json=payload, headers=headers)
 
+    # Handle API Response
     if response.status_code == 200:
         # Extract API response data
         data = response.json()
@@ -112,17 +180,17 @@ if st.sidebar.button("Submit"):
         # Convert results to DataFrame
         results_df = pd.DataFrame(results)
 
-        # Plot Benchmarks vs Building Emissions
-        years = [year for year, _ in benchmark_timeline]
-        benchmark_emissions = [value for _, value in benchmark_timeline]
-        building_emissions = [per_sq_ft_emissions] * len(years)
-
         # Display Results
         st.subheader("Results")
         st.metric("Total Emissions (kgCO2)", f"{total_emissions:.2f}")
         st.metric("Total Energy Consumption (kWh)", f"{total_consumption:.2f}")
         st.metric("Per Sq Ft Emissions (kgCO2/ft²)", f"{per_sq_ft_emissions:.4f}")
         st.dataframe(results_df)
+
+        # Plot Benchmarks vs Building Emissions
+        years = [year for year, _ in benchmark_timeline]
+        benchmark_emissions = [value for _, value in benchmark_timeline]
+        building_emissions = [per_sq_ft_emissions] * len(years)
 
         plt.figure(figsize=(10, 6))
         plt.plot(years, benchmark_emissions, label="Threshold Emissions (kgCO2/ft²)", color="blue", linestyle="--")
@@ -134,12 +202,11 @@ if st.sidebar.button("Submit"):
         plt.grid(True)
         st.pyplot(plt)
 
-        # ADDITIONAL CODE HERE
         # Calculate fines for non-compliance for each period
         fines = []
         for period, benchmark in emission_benchmarks.items():
             total_excess_emissions = max(0, (per_sq_ft_emissions - benchmark) * floor_area_ft2 * num_units)
-            fine = total_excess_emissions * 0.269  # Fine calculation
+            fine = total_excess_emissions * 269  # Fine calculation
             fines.append({
                 "Period": period,
                 "Threshold Emissions (kgCO2/ft²)": benchmark,
