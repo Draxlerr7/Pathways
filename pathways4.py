@@ -183,16 +183,6 @@ if response.status_code == 200:
     benchmark_emissions = [value for _, value in benchmark_timeline]
     building_emissions = [per_sq_ft_emissions] * len(years)
 
-    plt.figure(figsize=(10, 6))
-    plt.plot(years, benchmark_emissions, label="Benchmark Emissions (kgCO2/ft²)", color="blue", marker="o")
-    plt.plot(years, building_emissions, label="Building Emissions (kgCO2/ft²)", color="red", linestyle="--")
-    plt.xlabel("Year")
-    plt.ylabel("Emissions (kgCO2/ft²)")
-    plt.title("Building Emissions vs Benchmark Emissions")
-    plt.legend()
-    plt.grid(True)
-    st.pyplot(plt)
-
  # Display Results
     st.subheader("Results")
     st.metric("Total Emissions (kgCO2)", f"{total_emissions:.2f}")
