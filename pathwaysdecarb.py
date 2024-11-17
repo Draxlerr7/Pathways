@@ -175,33 +175,33 @@ if latitude and longitude:
         response = requests.post(API_URL, json=payload, headers=headers)
 
         # Handle API Response
-   if response.status_code == 200:
+    if response.status_code == 200:
     # Extract API response data
-    data = response.json()
-    location_info = data["data"]["location"]
-    intervals = pd.DataFrame(data["data"]["intervals"])
+        data = response.json()
+        location_info = data["data"]["location"]
+        intervals = pd.DataFrame(data["data"]["intervals"])
     
     # Extract location details
-    puma_fips = location_info.get("puma_fips", "N/A")
-    county = location_info.get("county", "N/A")
-    county_fips = location_info.get("county_fips", "N/A")
-    state = location_info.get("state", "N/A")
-    state_fips = location_info.get("state_fips", "N/A")
-    climate_zone = location_info.get("climate_zone", "N/A")
+        puma_fips = location_info.get("puma_fips", "N/A")
+        county = location_info.get("county", "N/A")
+        county_fips = location_info.get("county_fips", "N/A")
+        state = location_info.get("state", "N/A")
+        state_fips = location_info.get("state_fips", "N/A")
+        climate_zone = location_info.get("climate_zone", "N/A")
 
     # Extract emissions and consumption data
-    total_emissions = intervals.query("variable == 'emissions'")["value"].iloc[0] * num_units
-    total_consumption = intervals.query("variable == 'consumption.electricity'")["value"].iloc[0] * num_units
-    per_sq_ft_emissions = total_emissions / (floor_area_ft2 * num_units)
+        total_emissions = intervals.query("variable == 'emissions'")["value"].iloc[0] * num_units
+        total_consumption = intervals.query("variable == 'consumption.electricity'")["value"].iloc[0] * num_units
+        per_sq_ft_emissions = total_emissions / (floor_area_ft2 * num_units)
 
     # Display Location Info
-    st.subheader("Location Information")
-    st.write(f"**PUMA FIPS:** {puma_fips}")
-    st.write(f"**County:** {county}")
-    st.write(f"**County FIPS:** {county_fips}")
-    st.write(f"**State:** {state}")
-    st.write(f"**State FIPS:** {state_fips}")
-    st.write(f"**Climate Zone:** {climate_zone}")
+        st.subheader("Location Information")
+        st.write(f"**PUMA FIPS:** {puma_fips}")
+        st.write(f"**County:** {county}")
+        st.write(f"**County FIPS:** {county_fips}")
+        st.write(f"**State:** {state}")
+        st.write(f"**State FIPS:** {state_fips}")
+        st.write(f"**Climate Zone:** {climate_zone}")
 
     # Calculate Emissions vs Benchmarks
     results = []
