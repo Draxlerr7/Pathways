@@ -59,11 +59,11 @@ if latitude and longitude:
         "Building Type",
         ["Multi-Family (5 to 9 units)", "Multi-Family (10 to 19 units)", "Multi-Family (20 to 49 units)", "Multi-Family (50 or more units)"]
     )
-    floor_area_m2 = st.sidebar.number_input("Floor Area per unit in m²", value=100.0)
+    floor_area_m2 = st.sidebar.number_input("Floor Area per unit in m²", value=150.0)
     floor_area_ft2 = floor_area_m2 * 10.764
     num_units = st.sidebar.number_input("Number of Units in Building", value=50)
-    num_occupants = st.sidebar.number_input("Number of Occupants per unit", value=3)
-    num_stories = st.sidebar.number_input("Number of Stories", value=6)
+    num_occupants = st.sidebar.number_input("Number of Occupants per unit", value=4)
+    num_stories = st.sidebar.number_input("Number of Stories", value=5)
     vintage = st.sidebar.selectbox("Vintage", ["<1940", "1940s", "1950s", "1960s", "1970s", "1980s", "1990s", "2000s", "2010s", "2020s"])
     wall_type = st.sidebar.selectbox("Wall Type", ["Concrete", "Brick", "Other"])
 
@@ -96,7 +96,7 @@ if latitude and longitude:
 
     # Storage and Production
     st.sidebar.subheader("Storage and Production Attributes")
-    storage_capacity_quantile = st.sidebar.number_input("Battery Storage Capacity Recommendation Quantile (0 to 1)", value=0.3)
+    storage_capacity_quantile = st.sidebar.number_input("Battery Storage Capacity Recommendation Quantile (0 to 1)", value=0.0)
     production_capacity = st.sidebar.number_input("Production Capacity (kW)", value=0.0)
 
     # Submit Button
