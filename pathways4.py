@@ -172,34 +172,43 @@ if st.sidebar.button("Submit"):
         per_sq_ft_emissions = total_emissions / (floor_area_ft2 * num_units)
 
 # Additional code for decarbonization scenario
-        # Define the decarbonization trajectory for electric emission factors
-        start_year = 2024
-        end_year = 2050
-        initial_emission_factor = 0.2889  # kgCO2/kWh in 2024
-        final_emission_factor = 0.05  # kgCO2/kWh in 2050
-        years = list(range(start_year, end_year + 1))
-        decarbonization_factors = [
-            initial_emission_factor + (final_emission_factor - initial_emission_factor) * (year - start_year) / (end_year - start_year)
-            for year in years
-        ]
-        
-        # Calculate building emissions under the decarbonized grid
-        decarbonized_emissions_per_sq_ft = []
+       # Define decarbonization trajectory
+start_year = 2024
+end_year = 2050
+initial_emission_factor = 0.2889  # kgCO2/kWh in 2024
+final_emission_factor = 0.05  # kgCO2/kWh in 2050
+years = list(range(start_year, end_year + 1))
+decarbonization_factors = [
+    initial_emission_factor + (final_emission_factor - initial_emission_factor) * (year - start_year) / (end_year - start_year)
+    for year in years
+]
+
+# Define benchmark emissions for each year
+    benchmark_emissions = []
+    for year in years:
+        for period, benchmark in emission_benchmarks.items():
+            start_year, end_year = map(int, period.split("–"))
+            if start_year <= year <= end_year:
+                benchmark_emissions.append(benchmark)
+                break
+    
+    # Calculate building emissions under decarbonized grid
+    decarbonized_emissions_per_sq_ft = []
     for factor in decarbonization_factors:
         decarbonized_emissions = total_emissions * (factor / initial_emission_factor)
         decarbonized_emissions_per_sq_ft.append(decarbonized_emissions / (floor_area_ft2 * num_units))
-        
-        # Update Benchmark vs Building Emissions Plot
-        plt.figure(figsize=(10, 6))
-        plt.plot(years, benchmark_emissions, label="Benchmark Emissions (kgCO2/ft²)", color="blue", marker="o")
-        plt.plot(years, building_emissions, label="Building Emissions (kgCO2/ft²)", color="red", linestyle="--")
-        plt.plot(years, decarbonized_emissions_per_sq_ft, label="Decarbonized Grid (kgCO2/ft²)", color="green", linestyle=":")
-        plt.xlabel("Year")
-        plt.ylabel("Emissions (kgCO2/ft²)")
-        plt.title("Building Emissions vs Benchmark Emissions (Including Decarbonized Grid)")
-        plt.legend()
-        plt.grid(True)
-        st.pyplot(plt)
+    
+    # Plot updated Benchmark vs Building Emissions
+    plt.figure(figsize=(10, 6))
+    plt.plot(years, benchmark_emissions, label="Benchmark Emissions (kgCO2/ft²)", color="blue", marker="o")
+    plt.plot(years, [per_sq_ft_emissions] * len(years), label="Building Emissions (kgCO2/ft²)", color="red", linestyle="--")
+    plt.plot(years, decarbonized_emissions_per_sq_ft, label="Decarbonized Grid (kgCO2/ft²)", color="green", linestyle=":")
+    plt.xlabel("Year")
+    plt.ylabel("Emissions (kgCO2/ft²)")
+    plt.title("Building Emissions vs Benchmark Emissions (Including Decarbonized Grid)")
+    plt.legend()
+    plt.grid(True)
+    st.pyplot(plt)
         
         # Calculate fines for the decarbonized grid scenario
         decarbonized_fines = []
