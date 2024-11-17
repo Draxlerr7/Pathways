@@ -322,9 +322,9 @@ plt.xticks(x_positions[::5], [str(year) for year in years[::5]], rotation=45)
 plt.grid(axis="y", linestyle="--", alpha=0.7)
 st.pyplot(plt)
 
-    else:
-        st.error(f"API Call Failed: {response.status_code}")
-        st.write(response.text)
+else:
+    st.error(f"API Call Failed: {response.status_code}")
+    st.write(response.text)
 
 
 
