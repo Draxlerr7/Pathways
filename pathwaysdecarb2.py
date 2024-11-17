@@ -280,32 +280,14 @@ building_emissions_current = [per_sq_ft_emissions] * len(years)
 
 # Calculate building emissions with emission rate reduction
 emission_rate_reduction = {
-    2024: 0.2889,
-    2025: 0.279344,
-    2026: 0.269788,
-    2027: 0.260232,
-    2028: 0.250676,
-    2029: 0.24112,
-    2030: 0.231564,
-    2031: 0.222008,
-    2032: 0.212452,
-    2033: 0.202896,
-    2034: 0.19334,
-    2035: 0.183784,
-    2036: 0.174228,
-    2037: 0.164672,
-    2038: 0.155116,
-    2039: 0.14556,
-    2040: 0.136004,
-    2041: 0.126448,
-    2042: 0.116892,
-    2043: 0.107336,
-    2044: 0.09778,
-    2045: 0.088224,
-    2046: 0.078668,
-    2047: 0.069112,
-    2048: 0.059556,
-    2049: 0.05,
+  emission_factors = {
+    2024: 0.2889, 2025: 0.282544, 2026: 0.276188, 2027: 0.269832, 2028: 0.263476,
+    2029: 0.25712, 2030: 0.250764, 2031: 0.244408, 2032: 0.238052, 2033: 0.231696,
+    2034: 0.22534, 2035: 0.218984, 2036: 0.212628, 2037: 0.206272, 2038: 0.199916,
+    2039: 0.19356, 2040: 0.187204, 2041: 0.180848, 2042: 0.174492, 2043: 0.168136,
+    2044: 0.16178, 2045: 0.155424, 2046: 0.149068, 2047: 0.142712, 2048: 0.136356,
+    2049: 0.13
+}
 }
 building_emissions_reduced = [
     per_sq_ft_emissions * emission_rate_reduction.get(year, 0.2889) / 0.2889
@@ -328,23 +310,23 @@ st.pyplot(plt)
 fines_current = []
 fines_reduced = []
 
-for period, benchmark in emission_benchmarks.items():
-    total_excess_emissions_current = max(
-        0, (per_sq_ft_emissions - benchmark) * floor_area_ft2 * num_units
-    )
-    fine_current = total_excess_emissions_current * 269  # Fine calculation for current rates
-    fines_current.append(fine_current)
+for year in years:
+    if year in emission_factors:
+        # Calculate fines for current and reduced emission factors
+        excess_emissions_current = max(0, (per_sq_ft_emissions - benchmark_emissions[year]) * floor_area_ft2 * num_units)
+        fine_current = excess_emissions_current * 269  # Fine calculation for current rates
+        fines_current.append(fine_current)
 
-    total_excess_emissions_reduced = max(
-        0, (per_sq_ft_emissions * emission_rate_reduction.get(int(period.split("–")[0]), 0.2889) / 0.2889 - benchmark)
-        * floor_area_ft2
-        * num_units
-    )
-    fine_reduced = total_excess_emissions_reduced * 0.269  # Fine calculation for reduced rates
-    fines_reduced.append(fine_reduced)
+        reduced_rate = emission_factors[year]
+        excess_emissions_reduced = max(0, (reduced_rate - benchmark_emissions[year]) * floor_area_ft2 * num_units)
+        fine_reduced = excess_emissions_reduced * 269  # Fine calculation for reduced rates
+        fines_reduced.append(fine_reduced)
+    else:
+        st.error(f"Emission factor for year {year} is missing!")
+        fines_current.append(0)
+        fines_reduced.append(0)
 
 # Second Plot: Fines for Current and Reduced Rates
-# After calculating fines_current and fines_reduced, add the plot
 if len(fines_current) != len(years) or len(fines_reduced) != len(years):
     st.error("Mismatched lengths in fines data. Ensure fines_current and fines_reduced align with years.")
 else:
