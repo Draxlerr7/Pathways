@@ -6,8 +6,8 @@ import pandas as pd
 from geopy.geocoders import Nominatim
 
 # Streamlit App Title
-st.title("Palmetto Pathways Interactive Emission Calculator with Geocoding")
-
+st.title("Palmetto Pathways Interactive Emission Calculator")
+st.title("Interactive Emission Calculator")
 # API Information
 API_URL = "https://ei.palmetto.com/api/v0/bem/calculate"
 API_KEY = "tA9gUl2XSW4b2MnGEQig6A4tBQzu0lDOTt5dKXe9ZCc"
