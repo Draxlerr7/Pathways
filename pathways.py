@@ -3,7 +3,7 @@ import requests
 import pandas as pd
 
 # Streamlit App Title
-st.title("Energy Impact Dashboard")
+st.title("Palmetto Pathways")
 
 # API Information
 API_URL = "https://ei.palmetto.com/api/v0/bem/calculate"
@@ -22,12 +22,12 @@ to_datetime = st.sidebar.text_input("To Datetime (YYYY-MM-DDTHH:MM:SS)", "2024-0
 
 # Building Attributes
 st.sidebar.subheader("Building Attributes")
-building_type = st.sidebar.selectbox("Building Type", ["a", "b", "c", "d"])
+building_type = st.sidebar.selectbox("Building Type", ["Multi-Family (50 or more units)", "Multi-Family (20 to 49 units)", "Multi-Family (Multi-Family (10 to 19 units)"])
 floor_area = st.sidebar.number_input("Floor Area (sq ft)", value=1000)
 num_occupants = st.sidebar.number_input("Number of Occupants", value=3)
 num_stories = st.sidebar.number_input("Number of Stories", value=6)
-lighting = st.sidebar.selectbox("Lighting Type", ["a", "b", "c", "d"])
-hvac_heating_fuel = st.sidebar.selectbox("HVAC Heating Fuel", ["a", "b", "c", "d"])
+lighting = st.sidebar.selectbox("Lighting Type", ["LED", "CFL", "Incandescent"])
+hvac_heating_fuel = st.sidebar.selectbox("HVAC Heating Fuel", ["Fossil Fuel", "Electric"])
 
 # Window Type Logic
 window_question = st.sidebar.radio("Do you have double-pane high insulation windows?", ["Yes", "No"])
