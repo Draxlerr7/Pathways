@@ -158,21 +158,46 @@ if st.sidebar.button("Submit"):
 
     # Existing content
 if response.status_code == 200:
+    # Extract API response data
     data = response.json()
     intervals = pd.DataFrame(data["data"]["intervals"])
     total_emissions = intervals.query("variable == 'emissions'")["value"].iloc[0] * num_units
+    total_consumption = intervals.query("variable == 'consumption.electricity'")["value"].iloc[0] * num_units
     per_sq_ft_emissions = total_emissions / (floor_area_ft2 * num_units)
 
-    # Define decarbonization trajectory
-    start_year = 2024
-    end_year = 2050
-    initial_emission_factor = 0.2889  # kgCO2/kWh in 2024
-    final_emission_factor = 0.05  # kgCO2/kWh in 2050
-    years = list(range(start_year, end_year + 1))
-    decarbonization_factors = [
-        initial_emission_factor + (final_emission_factor - initial_emission_factor) * (year - start_year) / (end_year - start_year)
-        for year in years
-    ]
+    # Use the provided emission factors (hard-coded)
+    emission_factors = {
+        2024: 0.2889,
+        2025: 0.279344,
+        2026: 0.269788,
+        2027: 0.260232,
+        2028: 0.250676,
+        2029: 0.24112,
+        2030: 0.231564,
+        2031: 0.222008,
+        2032: 0.212452,
+        2033: 0.202896,
+        2034: 0.19334,
+        2035: 0.183784,
+        2036: 0.174228,
+        2037: 0.164672,
+        2038: 0.155116,
+        2039: 0.14556,
+        2040: 0.136004,
+        2041: 0.126448,
+        2042: 0.116892,
+        2043: 0.107336,
+        2044: 0.09778,
+        2045: 0.088224,
+        2046: 0.078668,
+        2047: 0.069112,
+        2048: 0.059556,
+        2049: 0.05
+    }
+
+    # Extract years and factors for plotting
+    years = list(emission_factors.keys())
+    decarbonization_factors = list(emission_factors.values())
 
     # Define benchmark emissions for each year
     benchmark_emissions = []
@@ -186,7 +211,7 @@ if response.status_code == 200:
     # Calculate building emissions under decarbonized grid
     decarbonized_emissions_per_sq_ft = []
     for factor in decarbonization_factors:
-        decarbonized_emissions = total_emissions * (factor / initial_emission_factor)
+        decarbonized_emissions = total_emissions * (factor / emission_factors[2024])
         decarbonized_emissions_per_sq_ft.append(decarbonized_emissions / (floor_area_ft2 * num_units))
 
     # Plot updated Benchmark vs Building Emissions
@@ -219,7 +244,7 @@ if response.status_code == 200:
     # Calculate fines for the decarbonized grid scenario
     decarbonized_fines = []
     for year, factor, benchmark in zip(years, decarbonization_factors, benchmark_emissions):
-        decarbonized_emissions = total_emissions * (factor / initial_emission_factor)
+        decarbonized_emissions = total_emissions * (factor / emission_factors[2024])
         decarbonized_per_sq_ft = decarbonized_emissions / (floor_area_ft2 * num_units)
         total_excess_emissions = max(0, (decarbonized_per_sq_ft - benchmark) * floor_area_ft2 * num_units)
         fine = total_excess_emissions * 269
@@ -255,5 +280,3 @@ if response.status_code == 200:
 else:
     st.error(f"API Call Failed: {response.status_code}")
     st.write(response.text)
-
-  
