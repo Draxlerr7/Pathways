@@ -165,7 +165,7 @@ if response.status_code == 200:
     total_consumption = intervals.query("variable == 'consumption.electricity'")["value"].iloc[0] * num_units
     per_sq_ft_emissions = total_emissions / (floor_area_ft2 * num_units)
         # Calculate Emissions vs Benchmarks
-        results = []
+    results = []
         for period, benchmark in emission_benchmarks.items():
             excess_emissions = max(0, per_sq_ft_emissions - benchmark) * floor_area_ft2 * num_units
             results.append({
@@ -176,73 +176,73 @@ if response.status_code == 200:
             })
 
         # Convert results to DataFrame
-        results_df = pd.DataFrame(results)
+    results_df = pd.DataFrame(results)
 
         # Plot Benchmarks vs Building Emissions
-        years = [year for year, _ in benchmark_timeline]
-        benchmark_emissions = [value for _, value in benchmark_timeline]
-        building_emissions = [per_sq_ft_emissions] * len(years)
+    years = [year for year, _ in benchmark_timeline]
+    benchmark_emissions = [value for _, value in benchmark_timeline]
+    building_emissions = [per_sq_ft_emissions] * len(years)
 
-        plt.figure(figsize=(10, 6))
-        plt.plot(years, benchmark_emissions, label="Benchmark Emissions (kgCO2/ft²)", color="blue", marker="o")
-        plt.plot(years, building_emissions, label="Building Emissions (kgCO2/ft²)", color="red", linestyle="--")
-        plt.xlabel("Year")
-        plt.ylabel("Emissions (kgCO2/ft²)")
-        plt.title("Building Emissions vs Benchmark Emissions")
-        plt.legend()
-        plt.grid(True)
-        st.pyplot(plt)
+    plt.figure(figsize=(10, 6))
+    plt.plot(years, benchmark_emissions, label="Benchmark Emissions (kgCO2/ft²)", color="blue", marker="o")
+    plt.plot(years, building_emissions, label="Building Emissions (kgCO2/ft²)", color="red", linestyle="--")
+    plt.xlabel("Year")
+    plt.ylabel("Emissions (kgCO2/ft²)")
+    plt.title("Building Emissions vs Benchmark Emissions")
+    plt.legend()
+    plt.grid(True)
+    st.pyplot(plt)
 
-        # Display Results
-        st.subheader("Results")
-        st.metric("Total Emissions (kgCO2)", f"{total_emissions:.2f}")
-        st.metric("Total Energy Consumption (kWh)", f"{total_consumption:.2f}")
-        st.metric("Per Sq Ft Emissions (kgCO2/ft²)", f"{per_sq_ft_emissions:.4f}")
-        st.dataframe(results_df)
+ # Display Results
+    st.subheader("Results")
+    st.metric("Total Emissions (kgCO2)", f"{total_emissions:.2f}")
+    st.metric("Total Energy Consumption (kWh)", f"{total_consumption:.2f}")
+    st.metric("Per Sq Ft Emissions (kgCO2/ft²)", f"{per_sq_ft_emissions:.4f}")
+    st.dataframe(results_df)
 
 # Plot Benchmarks vs Building Emissions
-        years = [year for year, _ in benchmark_timeline]
-        benchmark_emissions = [value for _, value in benchmark_timeline]
-        building_emissions = [per_sq_ft_emissions] * len(years)
+    years = [year for year, _ in benchmark_timeline]
+    benchmark_emissions = [value for _, value in benchmark_timeline]
+    building_emissions = [per_sq_ft_emissions] * len(years)
 
-        plt.figure(figsize=(10, 6))
-        plt.plot(years, benchmark_emissions, label="Benchmark Emissions (kgCO2/ft²)", color="blue", marker="o")
-        plt.plot(years, building_emissions, label="Building Emissions (kgCO2/ft²)", color="red", linestyle="--")
-        plt.xlabel("Year")
-        plt.ylabel("Emissions (kgCO2/ft²)")
-        plt.title("Building Emissions vs Benchmark Emissions")
-        plt.legend()
-        plt.grid(True)
-        st.pyplot(plt)
+    plt.figure(figsize=(10, 6))
+    plt.plot(years, benchmark_emissions, label="Benchmark Emissions (kgCO2/ft²)", color="blue", marker="o")
+    plt.plot(years, building_emissions, label="Building Emissions (kgCO2/ft²)", color="red", linestyle="--")
+    plt.xlabel("Year")
+    plt.ylabel("Emissions (kgCO2/ft²)")
+    plt.title("Building Emissions vs Benchmark Emissions")
+    plt.legend()
+    plt.grid(True)
+    st.pyplot(plt)
 
         # ADDITIONAL CODE HERE
         # Calculate fines for non-compliance for each period
-        fines = []
-        for period, benchmark in emission_benchmarks.items():
-            total_excess_emissions = max(0, (per_sq_ft_emissions - benchmark) * floor_area_ft2 * num_units)
-            fine = total_excess_emissions * 269  # Fine calculation
-            fines.append({
-                "Period": period,
-                "Benchmark Emissions (kgCO2/ft²)": benchmark,
-                "Excess Emissions (kgCO2)": total_excess_emissions,
-                "Fine ($)": fine
-            })
+    fines = []
+    for period, benchmark in emission_benchmarks.items():
+        total_excess_emissions = max(0, (per_sq_ft_emissions - benchmark) * floor_area_ft2 * num_units)
+        fine = total_excess_emissions * 0.269  # Fine calculation
+        fines.append({
+            "Period": period,
+            "Benchmark Emissions (kgCO2/ft²)": benchmark,
+            "Excess Emissions (kgCO2)": total_excess_emissions,
+            "Fine ($)": fine
+        })
 
         # Convert fines data to DataFrame
-        fines_df = pd.DataFrame(fines)
+    fines_df = pd.DataFrame(fines)
 
         # Plot fines for each year
-        plt.figure(figsize=(10, 6))
-        plt.bar(fines_df["Period"], fines_df["Fine ($)"], color="red", alpha=0.7)
-        plt.xlabel("Period")
-        plt.ylabel("Fine ($)")
-        plt.title("Building Emission Fines Due to Non-Compliance")
-        plt.grid(axis="y", linestyle="--", alpha=0.7)
-        st.pyplot(plt)
+    plt.figure(figsize=(10, 6))
+    plt.bar(fines_df["Period"], fines_df["Fine ($)"], color="red", alpha=0.7)
+    plt.xlabel("Period")
+    plt.ylabel("Fine ($)")
+    plt.title("Building Emission Fines Due to Non-Compliance")
+    plt.grid(axis="y", linestyle="--", alpha=0.7)
+    st.pyplot(plt)
 
         # Display fine-related results
-        st.subheader("BPS Compliance Fine Results")
-        st.dataframe(fines_df)
+    st.subheader("BPS Compliance Fine Results")
+    st.dataframe(fines_df)
 
 else:
     st.error(f"API Call Failed: {response.status_code}")
