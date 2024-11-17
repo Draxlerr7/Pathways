@@ -190,7 +190,7 @@ if st.sidebar.button("Submit"):
         fines = []
         for period, benchmark in emission_benchmarks.items():
             total_excess_emissions = max(0, (per_sq_ft_emissions - benchmark) * floor_area_ft2 * num_units)
-            fine = total_excess_emissions * 269  # Fine calculation
+            fine = total_excess_emissions * 0.269  # Fine calculation
             fines.append({
                 "Period": period,
                 "Benchmark Emissions (kgCO2/ft²)": benchmark,
