@@ -44,7 +44,7 @@ reduced_emission_factors = {
     2046: 0.149068,
     2047: 0.142712,
     2048: 0.136356,
-    2049: 0.13,
+    2049: 0.13
 }
 
 # Convert benchmarks into a timeline
