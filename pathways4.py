@@ -225,7 +225,7 @@ for year, factor, benchmark in zip(years, decarbonization_factors, benchmark_emi
         })
         
         # Convert decarbonized fines data to DataFrame
-        decarbonized_fines_df = pd.DataFrame(decarbonized_fines)
+decarbonized_fines_df = pd.DataFrame(decarbonized_fines)
         
         # Update Fine Plot
         plt.figure(figsize=(10, 6))
@@ -260,7 +260,7 @@ for year, factor, benchmark in zip(years, decarbonization_factors, benchmark_emi
 
         # ADDITIONAL CODE HERE
         # Calculate fines for non-compliance for each period
-    fines = []
+fines = []
     for period, benchmark in emission_benchmarks.items():
         total_excess_emissions = max(0, (per_sq_ft_emissions - benchmark) * floor_area_ft2 * num_units)
         fine = total_excess_emissions * 0.269  # Fine calculation
@@ -272,7 +272,7 @@ for year, factor, benchmark in zip(years, decarbonization_factors, benchmark_emi
             })
 
         # Convert fines data to DataFrame
-        fines_df = pd.DataFrame(fines)
+fines_df = pd.DataFrame(fines)
 
         # Plot fines for each year
         plt.figure(figsize=(10, 6))
