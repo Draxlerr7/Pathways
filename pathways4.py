@@ -183,8 +183,36 @@ if st.sidebar.button("Submit"):
         plt.legend()
         plt.grid(True)
         st.pyplot(plt)
-
         
+
+        # Calculate fines for non-compliance for each period
+    fines = []
+    for period, benchmark in emission_benchmarks.items():
+        total_excess_emissions = max(0, (per_sq_ft_emissions - benchmark) * floor_area_ft2 * num_units)
+        fine = total_excess_emissions * 269  # Fine calculation
+        fines.append({
+            "Period": period,
+            "Benchmark Emissions (kgCO2/ft²)": benchmark,
+            "Excess Emissions (kgCO2)": total_excess_emissions,
+            "Fine ($)": fine
+        })
+
+# Convert fines data to DataFrame
+        fines_df = pd.DataFrame(fines)
+        
+        # Plot fines for each year
+        plt.figure(figsize=(10, 6))
+        plt.bar(fines_df["Period"], fines_df["Fine ($)"], color="red", alpha=0.7)
+        plt.xlabel("Period")
+        plt.ylabel("Fine ($)")
+        plt.title("Building Emission Fines Due to Non-Compliance")
+        plt.grid(axis="y", linestyle="--", alpha=0.7)
+        st.pyplot(plt)
+        
+        # Display fine-related results
+        st.subheader("BPS Compliance Fine Results")
+        st.dataframe(fines_df)
+
 
     else:
         st.error(f"API Call Failed: {response.status_code}")
