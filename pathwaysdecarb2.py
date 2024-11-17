@@ -323,8 +323,8 @@ plt.grid(axis="y", linestyle="--", alpha=0.7)
 st.pyplot(plt)
 
 else:
-    st.error(f"API Call Failed: {response.status_code}")
-    st.write(response.text)
+        st.error(f"API Call Failed: {response.status_code}")
+        st.write(response.text)
 
 
 
