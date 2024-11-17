@@ -18,13 +18,33 @@ emission_benchmarks = {
     "2035–2039": 2.692183,
     "2040–2049": 2.052731
 }
-emission_rate_reduction = {
-    2024: 0.2889, 2025: 0.282544, 2026: 0.276188, 2027: 0.269832, 2028: 0.263476,
-    2029: 0.25712, 2030: 0.250764, 2031: 0.244408, 2032: 0.238052, 2033: 0.231696,
-    2034: 0.22534, 2035: 0.218984, 2036: 0.212628, 2037: 0.206272, 2038: 0.199916,
-    2039: 0.19356, 2040: 0.187204, 2041: 0.180848, 2042: 0.174492, 2043: 0.168136,
-    2044: 0.16178, 2045: 0.155424, 2046: 0.149068, 2047: 0.142712, 2048: 0.136356,
-    2049: 0.13
+reduced_emission_factors = {
+    2024: 0.2889,
+    2025: 0.282544,
+    2026: 0.276188,
+    2027: 0.269832,
+    2028: 0.263476,
+    2029: 0.25712,
+    2030: 0.250764,
+    2031: 0.244408,
+    2032: 0.238052,
+    2033: 0.231696,
+    2034: 0.22534,
+    2035: 0.218984,
+    2036: 0.212628,
+    2037: 0.206272,
+    2038: 0.199916,
+    2039: 0.19356,
+    2040: 0.187204,
+    2041: 0.180848,
+    2042: 0.174492,
+    2043: 0.168136,
+    2044: 0.16178,
+    2045: 0.155424,
+    2046: 0.149068,
+    2047: 0.142712,
+    2048: 0.136356,
+    2049: 0.13,
 }
 
 # Convert benchmarks into a timeline
@@ -306,6 +326,69 @@ plt.grid(True)
 st.pyplot(plt)
 
 # Calculate fines for non-compliance for Current and Reduced Rates
+reduced_emissions = [
+    per_sq_ft_emissions * reduced_emission_factors.get(year, 0.2889) / 0.2889
+    for year in years
+]
+
+# Calculate fines for current and reduced emissions
+fines_current = []
+fines_reduced = []
+
+for year, reduced_emission in zip(years, reduced_emissions):
+    if year in emission_factors:
+        # Benchmark emission for the current year
+        benchmark_emission = emission_benchmarks.get(f"{year}–{year + 5}", benchmark_emissions[0])
+
+        # Calculate fines for current rates
+        excess_emissions_current = max(0, (per_sq_ft_emissions - benchmark_emission) * floor_area_ft2 * num_units)
+        fine_current = excess_emissions_current * 0.269  # Fine calculation for current rates
+        fines_current.append(fine_current)
+
+        # Calculate fines for reduced rates
+        excess_emissions_reduced = max(0, (reduced_emission - benchmark_emission) * floor_area_ft2 * num_units)
+        fine_reduced = excess_emissions_reduced * 0.269  # Fine calculation for reduced rates
+        fines_reduced.append(fine_reduced)
+    else:
+        st.error(f"Emission factor for year {year} is missing!")
+        fines_current.append(0)
+        fines_reduced.append(0)
+
+# Plot fines for Current and Reduced Emissions
+if len(fines_current) != len(years) or len(fines_reduced) != len(years):
+    st.error("Mismatched lengths in fines data. Ensure fines_current and fines_reduced align with years.")
+else:
+    plt.figure(figsize=(10, 6))
+    width = 0.4  # Width of the bars
+    x_positions = range(len(years))
+
+    # Plot fines for current rates
+    plt.bar(
+        [x - width / 2 for x in x_positions],
+        fines_current,
+        width=width,
+        color="red",
+        alpha=0.7,
+        label="Fines (Current Rates)",
+    )
+    # Plot fines for reduced rates
+    plt.bar(
+        [x + width / 2 for x in x_positions],
+        fines_reduced,
+        width=width,
+        color="green",
+        alpha=0.5,
+        label="Fines (Reduced Rates)",
+    )
+    plt.xticks(x_positions, [str(year) for year in years], rotation=45)
+    plt.xlabel("Year")
+    plt.ylabel("Fines ($/yr)")
+    plt.title("Annual Fines Incurred Due to Non-Compliance (Current vs Reduced Rates)")
+    plt.legend()
+    plt.grid(axis="y", linestyle="--", alpha=0.7)
+    st.pyplot(plt)
+
+
 fines_current = []
 fines_reduced = []
 
