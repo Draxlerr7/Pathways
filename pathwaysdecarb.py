@@ -178,7 +178,7 @@ if st.sidebar.button("Submit"):
         
     response = requests.post(API_URL, json=payload, headers=headers)
 
-        if response.status_code == 200:
+    if response.status_code == 200:
     # Process the response data
             data = response.json()
 
