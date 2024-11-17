@@ -172,7 +172,7 @@ if latitude and longitude:
             "content-type": "application/json",
             "X-API-Key": API_KEY
         }
-        response = requests.post(API_URL, json=payload, headers=headers)
+    response = requests.post(API_URL, json=payload, headers=headers)
 
         # Handle API Response
     if response.status_code == 200:
