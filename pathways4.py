@@ -56,7 +56,10 @@ hvac_cooling_setpoint = st.sidebar.number_input("HVAC Cooling Setpoint (°C)", v
 # Water Heating
 water_heater = st.sidebar.selectbox("Water Heating Fuel", ["Fossil Fuel Standard", "Electric", "Solar"])
 
-# Window Inputs
+# Lighting Inputs
+lighting = st.sidebar.selectbox("Lighting Type", ["Incandescent", "LED", "CFL"])
+
+# Window and Roof Attributes
 window_question = st.sidebar.radio("Do you have double-pane high insulation windows?", ["Yes", "No"])
 window_type = "Double" if window_question == "Yes" else "Single"
 roof_insulation_question = st.sidebar.radio("Do you have a thermally insulated roof?", ["Yes", "No"])
