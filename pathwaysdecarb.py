@@ -175,7 +175,7 @@ if latitude and longitude:
         response = requests.post(API_URL, json=payload, headers=headers)
 
         # Handle API Response
- if response.status_code == 200:
+    if response.status_code == 200:
     # Extract API response data
     data = response.json()
     location_info = data["data"]["location"]
