@@ -176,99 +176,99 @@ if st.sidebar.button("Submit"):
             "X-API-Key": API_KEY
         }
         
-        response = requests.post(API_URL, json=payload, headers=headers)
+    response = requests.post(API_URL, json=payload, headers=headers)
 
         if response.status_code == 200:
     # Process the response data
-        data = response.json()
+            data = response.json()
 
     # Extract location details
-        location_info = data["data"]["location"]
-        intervals = pd.DataFrame(data["data"]["intervals"])
+            location_info = data["data"]["location"]
+            intervals = pd.DataFrame(data["data"]["intervals"])
     
     # Extract location details
-    puma_fips = location_info.get("puma_fips", "N/A")
-    county = location_info.get("county", "N/A")
-    county_fips = location_info.get("county_fips", "N/A")
-    state = location_info.get("state", "N/A")
-    state_fips = location_info.get("state_fips", "N/A")
-    climate_zone = location_info.get("climate_zone", "N/A")
+        puma_fips = location_info.get("puma_fips", "N/A")
+        county = location_info.get("county", "N/A")
+        county_fips = location_info.get("county_fips", "N/A")
+        state = location_info.get("state", "N/A")
+        state_fips = location_info.get("state_fips", "N/A")
+        climate_zone = location_info.get("climate_zone", "N/A")
 
     # Extract emissions and consumption data
-    total_emissions = intervals.query("variable == 'emissions'")["value"].iloc[0] * num_units
-    total_consumption = intervals.query("variable == 'consumption.electricity'")["value"].iloc[0] * num_units
-    per_sq_ft_emissions = total_emissions / (floor_area_ft2 * num_units)
+        total_emissions = intervals.query("variable == 'emissions'")["value"].iloc[0] * num_units
+        total_consumption = intervals.query("variable == 'consumption.electricity'")["value"].iloc[0] * num_units
+        per_sq_ft_emissions = total_emissions / (floor_area_ft2 * num_units)
 
     # Display Location Info
-    st.subheader("Location Information")
-    st.write(f"**PUMA FIPS:** {puma_fips}")
-    st.write(f"**County:** {county}")
-    st.write(f"**County FIPS:** {county_fips}")
-    st.write(f"**State:** {state}")
-    st.write(f"**State FIPS:** {state_fips}")
-    st.write(f"**Climate Zone:** {climate_zone}")
+        st.subheader("Location Information")
+        st.write(f"**PUMA FIPS:** {puma_fips}")
+        st.write(f"**County:** {county}")
+        st.write(f"**County FIPS:** {county_fips}")
+        st.write(f"**State:** {state}")
+        st.write(f"**State FIPS:** {state_fips}")
+        st.write(f"**Climate Zone:** {climate_zone}")
 
     # Display Emissions and Consumption Info
-    st.subheader("Results")
-    st.metric("Total Emissions (kgCO2)", f"{total_emissions:.2f}")
-    st.metric("Total Energy Consumption (kWh)", f"{total_consumption:.2f}")
-    st.metric("Per Sq Ft Emissions (kgCO2/ft²)", f"{per_sq_ft_emissions:.4f}")
+        st.subheader("Results")
+        st.metric("Total Emissions (kgCO2)", f"{total_emissions:.2f}")
+        st.metric("Total Energy Consumption (kWh)", f"{total_consumption:.2f}")
+        st.metric("Per Sq Ft Emissions (kgCO2/ft²)", f"{per_sq_ft_emissions:.4f}")
 
     # Calculate Emissions vs Benchmarks
-    results = []
-    for period, benchmark in emission_benchmarks.items():
-        excess_emissions = max(0, per_sq_ft_emissions - benchmark) * floor_area_ft2 * num_units
-        results.append({
-            "Period": period,
-            "Benchmark Emissions (kgCO2/ft²)": benchmark,
-            "Building Emissions (kgCO2/ft²)": per_sq_ft_emissions,
-            "Excess Emissions (kgCO2)": excess_emissions
-        })
+        results = []
+        for period, benchmark in emission_benchmarks.items():
+            excess_emissions = max(0, per_sq_ft_emissions - benchmark) * floor_area_ft2 * num_units
+            results.append({
+                "Period": period,
+                "Benchmark Emissions (kgCO2/ft²)": benchmark,
+                "Building Emissions (kgCO2/ft²)": per_sq_ft_emissions,
+                "Excess Emissions (kgCO2)": excess_emissions
+            })
 
     # Convert results to DataFrame
-    results_df = pd.DataFrame(results)
-    st.dataframe(results_df)
+        results_df = pd.DataFrame(results)
+        st.dataframe(results_df)
 
     # Plot Benchmarks vs Building Emissions
-    years = [year for year, _ in benchmark_timeline]
-    benchmark_emissions = [value for _, value in benchmark_timeline]
-    building_emissions = [per_sq_ft_emissions] * len(years)
+        years = [year for year, _ in benchmark_timeline]
+        benchmark_emissions = [value for _, value in benchmark_timeline]
+        building_emissions = [per_sq_ft_emissions] * len(years)
 
-    plt.figure(figsize=(10, 6))
-    plt.plot(years, benchmark_emissions, label="Threshold Emissions (kgCO2/ft²)", color="blue", linestyle="--")
-    plt.plot(years, building_emissions, label="Building Emissions (kgCO2/ft²)", color="red")
-    plt.xlabel("Year")
-    plt.ylabel("Emissions (kgCO2/ft²)")
-    plt.title("Your Building Emissions vs Threshold Emissions")
-    plt.legend()
-    plt.grid(True)
-    st.pyplot(plt)
+        plt.figure(figsize=(10, 6))
+        plt.plot(years, benchmark_emissions, label="Threshold Emissions (kgCO2/ft²)", color="blue", linestyle="--")
+        plt.plot(years, building_emissions, label="Building Emissions (kgCO2/ft²)", color="red")
+        plt.xlabel("Year")
+        plt.ylabel("Emissions (kgCO2/ft²)")
+        plt.title("Your Building Emissions vs Threshold Emissions")
+        plt.legend()
+        plt.grid(True)
+        st.pyplot(plt)
 
     # Calculate fines for non-compliance for each period
-    fines = []
-    for period, benchmark in emission_benchmarks.items():
-        total_excess_emissions = max(0, (per_sq_ft_emissions - benchmark) * floor_area_ft2 * num_units)
-        fine = total_excess_emissions * 269  # Fine calculation
-        fines.append({
-            "Period": period,
-            "Threshold Emissions (kgCO2/ft²)": benchmark,
-            "Excess Emissions (kgCO2)": total_excess_emissions,
-            "Fine ($)": fine
-        })
+        fines = []
+        for period, benchmark in emission_benchmarks.items():
+            total_excess_emissions = max(0, (per_sq_ft_emissions - benchmark) * floor_area_ft2 * num_units)
+            fine = total_excess_emissions * 269  # Fine calculation
+            fines.append({
+                "Period": period,
+                "Threshold Emissions (kgCO2/ft²)": benchmark,
+                "Excess Emissions (kgCO2)": total_excess_emissions,
+                "Fine ($)": fine
+            })
 
     # Convert fines data to DataFrame
-    fines_df = pd.DataFrame(fines)
-    st.subheader("BPS Compliance Fine Results")
-    st.dataframe(fines_df)
+        fines_df = pd.DataFrame(fines)
+        st.subheader("BPS Compliance Fine Results")
+        st.dataframe(fines_df)
 
     # Plot fines for each year
-    plt.figure(figsize=(10, 6))
-    plt.bar(fines_df["Period"], fines_df["Fine ($)"], color="red", alpha=0.7)
-    plt.xlabel("Period")
-    plt.ylabel("Fines ($/yr)")
-    plt.title("Annual Fines Incurred Due to Non-Compliance")
-    plt.grid(axis="y", linestyle="--", alpha=0.7)
-    st.pyplot(plt)
-else:
-    st.error(f"API Call Failed: {response.status_code}")
-    st.write(response.text)
+        plt.figure(figsize=(10, 6))
+        plt.bar(fines_df["Period"], fines_df["Fine ($)"], color="red", alpha=0.7)
+        plt.xlabel("Period")
+        plt.ylabel("Fines ($/yr)")
+        plt.title("Annual Fines Incurred Due to Non-Compliance")
+        plt.grid(axis="y", linestyle="--", alpha=0.7)
+        st.pyplot(plt)
+    else:
+        st.error(f"API Call Failed: {response.status_code}")
+        st.write(response.text)
