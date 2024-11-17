@@ -278,16 +278,12 @@ if st.sidebar.button("Submit"):
         plt.title("Annual Fines Incurred Due to Non-Compliance")
         plt.grid(axis="y", linestyle="--", alpha=0.7)
         st.pyplot(plt)
-    else:
-        st.error(f"API Call Failed: {response.status_code}")
-        st.write(response.text)
 
-
-# Plot Benchmarks vs Building Emissions for Current and Reduced Emission Rates
+        # Plot Benchmarks vs Building Emissions for Current and Reduced Emission Rates
 years = list(range(2024, 2050))
-benchmark_emissions = [emission_benchmarks[f"{year}–{year+5}" if year < 2040 else "2040–2049"] for year in years]
+benchmark_emissions = [emission_benchmarks[f"{year}-{min(year+5, 2049)}" if year < 2040 else "2040-2049"] for year in years]
 building_emissions_current = [per_sq_ft_emissions] * len(years)
-building_emissions_reduced = [per_sq_ft_emissions * emission_rate_reduction.get(year, 0.2889) / 0.2889 for year in years]
+building_emissions_reduced = [per_sq_ft_emissions * emission_rate_reduction[year] / 0.2889 for year in years]
 
 plt.figure(figsize=(12, 6))
 plt.plot(years, benchmark_emissions, label="Threshold Emissions (kgCO2/ft²)", color="blue", linestyle="--")
@@ -322,6 +318,14 @@ plt.xlabel("Year")
 plt.ylabel("Fines ($/yr)")
 plt.title("Annual Fines Incurred Due to Non-Compliance (Current vs Reduced Rates)")
 plt.legend()
-plt.xticks(x_positions, [str(year) for year in years], rotation=45)
+plt.xticks(x_positions[::5], [str(year) for year in years[::5]], rotation=45)
 plt.grid(axis="y", linestyle="--", alpha=0.7)
 st.pyplot(plt)
+
+    else:
+        st.error(f"API Call Failed: {response.status_code}")
+        st.write(response.text)
+
+
+
+
