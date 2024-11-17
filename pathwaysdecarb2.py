@@ -348,15 +348,12 @@ for period, benchmark in emission_benchmarks.items():
 if len(fines_current) != len(years) or len(fines_reduced) != len(years):
     st.error("Mismatched lengths in fines data. Ensure fines_current and fines_reduced align with years.")
 else:
-    # Second Plot: Fines for Current and Reduced Rates
     plt.figure(figsize=(10, 6))
     width = 0.4  # Width of the bars
-
-    # Generate x positions for grouped bar plot
     x_positions = range(len(years))
 
     plt.bar(
-        [x - width / 2 for x in x_positions],  # Offset positions for current fines
+        [x - width / 2 for x in x_positions],
         fines_current,
         width=width,
         color="red",
@@ -364,14 +361,14 @@ else:
         label="Fines (Current Rates)",
     )
     plt.bar(
-        [x + width / 2 for x in x_positions],  # Offset positions for reduced fines
+        [x + width / 2 for x in x_positions],
         fines_reduced,
         width=width,
         color="green",
         alpha=0.5,
         label="Fines (Reduced Rates)",
     )
-    plt.xticks(x_positions, [str(year) for year in years], rotation=45)  # Ensure proper alignment of x-ticks
+    plt.xticks(x_positions, [str(year) for year in years], rotation=45)
     plt.xlabel("Year")
     plt.ylabel("Fines ($/yr)")
     plt.title("Annual Fines Incurred Due to Non-Compliance (Current vs Reduced Rates)")
