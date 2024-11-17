@@ -211,7 +211,7 @@ for factor in decarbonization_factors:
     st.pyplot(plt)
         
         # Calculate fines for the decarbonized grid scenario
-    decarbonized_fines = []
+decarbonized_fines = []
 for year, factor, benchmark in zip(years, decarbonization_factors, benchmark_emissions):
     decarbonized_emissions = total_emissions * (factor / initial_emission_factor)
     decarbonized_per_sq_ft = decarbonized_emissions / (floor_area_ft2 * num_units)
