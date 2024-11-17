@@ -180,11 +180,11 @@ if st.sidebar.button("Submit"):
 
     if response.status_code == 200:
     # Process the response data
-            data = response.json()
+        data = response.json()
 
     # Extract location details
-            location_info = data["data"]["location"]
-            intervals = pd.DataFrame(data["data"]["intervals"])
+        location_info = data["data"]["location"]
+        intervals = pd.DataFrame(data["data"]["intervals"])
     
     # Extract location details
         puma_fips = location_info.get("puma_fips", "N/A")
