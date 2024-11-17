@@ -196,11 +196,11 @@ if response.status_code == 200:
     building_emissions = [per_sq_ft_emissions] * len(years)
 
     plt.figure(figsize=(10, 6))
-    plt.plot(years, benchmark_emissions, label="Benchmark Emissions (kgCO2/ft²)", color="blue", marker="o")
-    plt.plot(years, building_emissions, label="Building Emissions (kgCO2/ft²)", color="red", linestyle="--")
+    plt.plot(years, benchmark_emissions, label="Threshold Emissions (kgCO2/ft²)", color="blue", linestyle="--")
+    plt.plot(years, building_emissions, label="Building Emissions (kgCO2/ft²)", color="red")
     plt.xlabel("Year")
     plt.ylabel("Emissions (kgCO2/ft²)")
-    plt.title("Building Emissions vs Benchmark Emissions")
+    plt.title("Your Building Emissions vs Threshold Emissions")
     plt.legend()
     plt.grid(True)
     st.pyplot(plt)
@@ -213,7 +213,7 @@ if response.status_code == 200:
         fine = total_excess_emissions * 0.269  # Fine calculation
         fines.append({
             "Period": period,
-            "Benchmark Emissions (kgCO2/ft²)": benchmark,
+            "Threshold Emissions (kgCO2/ft²)": benchmark,
             "Excess Emissions (kgCO2)": total_excess_emissions,
             "Fine ($)": fine
         })
@@ -225,8 +225,8 @@ if response.status_code == 200:
     plt.figure(figsize=(10, 6))
     plt.bar(fines_df["Period"], fines_df["Fine ($)"], color="red", alpha=0.7)
     plt.xlabel("Period")
-    plt.ylabel("Fine ($)")
-    plt.title("Building Emission Fines Due to Non-Compliance")
+    plt.ylabel("Fines ($/yr)")
+    plt.title("Annual Fines Incurred Due to Non-Compliance")
     plt.grid(axis="y", linestyle="--", alpha=0.7)
     st.pyplot(plt)
 
